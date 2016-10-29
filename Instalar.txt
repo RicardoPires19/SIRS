@@ -1,0 +1,2 @@
+instalar jersey- para mim apareceu um autoinstall do eclipse
+project+properteis+java build path+expand jrs+add rule+add como na img
