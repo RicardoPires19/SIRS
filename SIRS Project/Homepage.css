@@ -1,0 +1,76 @@
+html {
+    width: 100%;
+    height: 100%;
+    font-family: Helvetica;
+    font-size: 13px;
+    background-color: white;
+}
+
+body {
+    height: 100%;
+    width: 80%;
+    margin: auto;
+    padding: 0px;
+}
+
+#auctions {
+    margin: 10px;
+    margin-bottom: 50px;
+    font-family: Helvetica;
+    font-size: 70px;
+    text-align: center;
+    color: blue;
+}
+
+.leilao {
+    width: 60%;
+    background-color: skyblue;
+    color: white;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 15px;
+    margin: auto;
+    margin-bottom: 50px;
+    border: 5px solid #3366ff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: Helvetica;
+    color: white;
+    display:block;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#placebid {
+    width: 15%;
+    background-color: skyblue;
+    color: white;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 15px;
+    margin: auto;
+    margin-left: 15px;
+    border: 5px solid #3366ff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: Helvetica;
+    color: white;
+    display:inline-block;
+    box-sizing: border-box;
+    text-align: left;
+    position: relative;
+    top: 50%;
+    transform: translateY(-40%);
+}
+
+#format {
+    height: 75%;
+    width: 80%;
+    position: relative;
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 10px;
+}
