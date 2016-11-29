@@ -1,16 +1,23 @@
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+//@XmlRootElement
 public class User {
-	@XmlElement
-	public String firsthName;
-	@XmlElement
-	public String surName;
-	@XmlElement
-	public String passWord;
-	@XmlElement
-	public String email;
+	/**
+	 * 
+	 */
+	//private static final long serialVersionUID = 1L;
+
+	//@XmlElement
+	private String firsthName;
+	
+	private String surName;
+
+	private String passWord;
+	
+	private String email;
 	
 	private String id;
 	public User(){}

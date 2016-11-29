@@ -29,6 +29,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +56,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.sql.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.sun.net.httpserver.HttpServer;
 
 @Path("/AuctionServer")
@@ -80,10 +85,9 @@ public class Server {
 		System.out.println("Server url: " + myURL);
 		URI baseUri = UriBuilder.fromUri(myURL).build();
 		ResourceConfig config = new ResourceConfig();
-		
+
 		config.register(Server.class);
 		config.register(CORSFilter.class);
-		
 
 		SSLContext sslContext = SSLContext.getInstance("TLSv1");
 		KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -96,8 +100,7 @@ public class Server {
 		tmf.init(keyStore);
 		sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
 		HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config, sslContext);
-		
-		
+
 		System.err.println("REST Server ready... ");
 
 	}
@@ -152,77 +155,107 @@ public class Server {
 	@POST
 	@Path("/User")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response Regist(final User u) {
+	public Response Regist(String user) {
 
-		System.out.println("Resgist User: " + u.firsthName+ " "+ u.surName+ " "+u.email+ " "+u.passWord);
-		Response rep = Response.status(200).build();
+		JSONParser parser = new JSONParser();
+		JSONObject res;
+		Response rep = null;
+		try {
+			res = (JSONObject) parser.parse(user);
+
+			String firsthName = (String) res.get("firsthName");
+			String surName = (String) res.get("surName");
+			String email = (String) res.get("email");
+			String passWord = (String) res.get("passWord");
+
+			System.out.println("Resgist User: " + firsthName + " " + surName + " " + email + " " + passWord);
+			rep = Response.status(200).build();
+		} catch (ParseException e) {
+
+			rep = Response.status(415).build();
+		}
 		return rep;
 	}
-	
+
 	@POST
 	@Path("/Loggin")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response loggin(@QueryParam("email") String email,String passWord) {
+	public Response loggin(String loggin) {
 
-		System.out.println("Loggin User: " + email+" "+passWord);
-		Response rep = Response.status(200).build();
+		JSONParser parser = new JSONParser();
+		JSONObject res;
+		Response rep = null;
+		try {
+			res = (JSONObject) parser.parse(loggin);
+
+			String email = (String) res.get("email");
+			String passWord = (String) res.get("passWord");
+			System.out.println("Loggin User: " + email + " " + passWord);
+			rep = Response.status(200).build();
+		} catch (ParseException e) {
+
+			rep = Response.status(415).build();
+		}
+
 		return rep;
 	}
-	
-//
-//	@GET
-//	@Path("/Auction")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public Response ListAuctions() {
-//		//returna lista de leilloes
-//		System.out.println("resquest leiloes");
-//		User u = new User("paulo", "anjos", "pass", "mail");
-//		User u2 = new User("paulo", "anjos", "pass", "mail");
-//		User[] users = new User[2];
-//		users[0] = u;
-//		users[1] = u2;
-//		Response res = Response.ok(users).build();
-//		res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
-//		return res;
-//	}
-//	
-//	@POST
-//	@Path("/Auction")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public Response createAuction() {
-//		//returna lista de leilloes
-//		System.out.println("resquest leiloes");
-//		User u = new User("paulo", "anjos", "pass", "mail");
-//		User u2 = new User("paulo", "anjos", "pass", "mail");
-//		User[] users = new User[2];
-//		users[0] = u;
-//		users[1] = u2;
-//		Response res = Response.ok(users).build();
-//		res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
-//		return res;
-//	}
-//	
-//	@GET
-//	@Path("/Auction/{id}")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public Response getAuction(@PathParam("id") String auctionID ) {
-//		//return um leilao
-//		Response res = Response.ok().build();
-//		res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
-//		return res;
-//	}
-//	
-//	@GET
-//	@Path("/Auction/{id}/bid")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public Response bid(@PathParam("id") String auctionID ) {
-//		//return um leilao
-//		Response res = Response.ok().build();
-//		res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
-//		return res;
-//	}
-	
-	
+
+	@GET
+	@Path("/Auction")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response ListAuctions() {
+		// returna lista de leilloes
+		System.out.println("resquest leiloes");
+		Auction auction = new Auction("1", "1", new Date(System.currentTimeMillis()), 10, "2", "1");
+
+		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = null;
+		try {
+			json = ow.writeValueAsString(auction);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Response res = Response.ok(json).build();
+		return res;
+	}
+	//
+	// @POST
+	// @Path("/Auction")
+	// @Produces(MediaType.APPLICATION_JSON)
+	// public Response createAuction() {
+	// //returna lista de leilloes
+	// System.out.println("resquest leiloes");
+	// User u = new User("paulo", "anjos", "pass", "mail");
+	// User u2 = new User("paulo", "anjos", "pass", "mail");
+	// User[] users = new User[2];
+	// users[0] = u;
+	// users[1] = u2;
+	// Response res = Response.ok(users).build();
+	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
+	// return res;
+	// }
+	//
+	// @GET
+	// @Path("/Auction/{id}")
+	// @Produces(MediaType.APPLICATION_JSON)
+	// public Response getAuction(@PathParam("id") String auctionID ) {
+	// //return um leilao
+	// Response res = Response.ok().build();
+	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
+	// return res;
+	// }
+	//
+	// @GET
+	// @Path("/Auction/{id}/bid")
+	// @Produces(MediaType.APPLICATION_JSON)
+	// public Response bid(@PathParam("id") String auctionID ) {
+	// //return um leilao
+	// Response res = Response.ok().build();
+	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
+	// return res;
+	// }
 
 	// @POST
 	// @Path("/User")
