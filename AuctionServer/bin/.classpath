@@ -7,11 +7,15 @@
 			<accessrule kind="accessible" pattern="com/sun/net/httpserver/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="/SD-tp2/lib/Jersey-bundle.jar">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/sun/net/httpserver/**"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry kind="lib" path="/SD-tp2/lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="lib/Jersey-bundle.jar"/>
+	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/scribejava-apis-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/scribejava-core-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-35_lib/commons-lang3-3.5-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-35_lib/commons-lang3-3.5-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-35_lib/commons-lang3-3.5-test-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-35_lib/commons-lang3-3.5-tests.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-35_lib/commons-lang3-3.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

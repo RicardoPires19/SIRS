@@ -55,6 +55,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import  org.apache.commons.lang3.*;
+
+
+
 import java.sql.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -163,12 +167,19 @@ public class Server {
 		try {
 			res = (JSONObject) parser.parse(user);
 
-			String firsthName = (String) res.get("firsthName");
-			String surName = (String) res.get("surName");
-			String email = (String) res.get("email");
-			String passWord = (String) res.get("passWord");
+			String firstName = StringEscapeUtils.escapeHtml4((String) res.get("firstName"));
+			String surName =StringEscapeUtils.escapeHtml4((String) res.get("surName"));
+			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
+			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
+			String nib = StringEscapeUtils.escapeHtml4((String) res.get("nib"));
 
-			System.out.println("Resgist User: " + firsthName + " " + surName + " " + email + " " + passWord);
+			firstName=StringEscapeUtils.escapeHtml4(firstName);
+			// ...
+			System.out.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord + " " + nib);
+
+			// stattus =3 email já existe
+			// status =4 nib já existe; url/?id=value
+
 			rep = Response.status(200).build();
 		} catch (ParseException e) {
 
@@ -188,9 +199,13 @@ public class Server {
 		try {
 			res = (JSONObject) parser.parse(loggin);
 
-			String email = (String) res.get("email");
-			String passWord = (String) res.get("passWord");
+			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
+			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
 			System.out.println("Loggin User: " + email + " " + passWord);
+
+			// acess BD to check if exists
+			// userName nao existe = 1
+			// password errada =2
 			rep = Response.status(200).build();
 		} catch (ParseException e) {
 
@@ -206,18 +221,21 @@ public class Server {
 	public Response ListAuctions() {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-		Auction auction = new Auction("1", "1", new Date(System.currentTimeMillis()), 10, "2", "1");
+		//Auction auction = new Auction("1", "1", new Date(System.currentTimeMillis()), 10, "2", "1");
 
-		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		String json = null;
-		try {
-			json = ow.writeValueAsString(auction);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		Response res = Response.ok(json).build();
+//		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+//		String json = null;
+//		try {
+//			//json = ow.writeValueAsString(auction);
+//		} catch (JsonProcessingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		String[] teste = new String[3];
+		teste[0]="Computador&200&09/12/2016";
+		teste[1]="Telemovel&150&08/12/2016";
+		teste[2]="Tablet&175&07/12/2016";
+		Response res = Response.ok(teste).build();
 		return res;
 	}
 	//
@@ -252,6 +270,7 @@ public class Server {
 	// @Produces(MediaType.APPLICATION_JSON)
 	// public Response bid(@PathParam("id") String auctionID ) {
 	// //return um leilao
+	//status =5 bid mais baixa que a curent
 	// Response res = Response.ok().build();
 	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
 	// return res;

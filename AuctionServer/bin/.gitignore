@@ -1,19 +1,17 @@
+/Database.sql
+/SIRS Project/
+/lib/
 /.classpath
 /.project
 /.settings/
+/Auction.class
 /AuctionServer.jks
+/CORSFilter.class
 /ClientTestSever$InsecureHostnameVerifier.class
 /ClientTestSever$InsecureTrustManager.class
 /ClientTestSever.class
 /Example.cer
-/IServer.class
 /Server.class
 /User.class
 /index.html
-/Leiloes.class
-/Leilao.class
-/CorsFilter.class
-/CorsFilter$CrunchifyCORSFilter.class
-/CORSFilter.class
-/Auction.class
-/Database.sql
+/queries.sql
