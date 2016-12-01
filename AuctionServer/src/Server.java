@@ -31,6 +31,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -198,10 +199,11 @@ public class Server {
 		Response rep = null;
 		try {
 			res = (JSONObject) parser.parse(loggin);
-
+			
 			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
 			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
-			System.out.println("Loggin User: " + email + " " + passWord);
+			System.out.println("Loggin User unescaped: " + email + " " + passWord);
+			System.out.println("Loggin User escaped: " + email + " " + passWord);
 
 			// acess BD to check if exists
 			// userName nao existe = 1
@@ -223,21 +225,74 @@ public class Server {
 		System.out.println("resquest leiloes");
 		//Auction auction = new Auction("1", "1", new Date(System.currentTimeMillis()), 10, "2", "1");
 
-//		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-//		String json = null;
-//		try {
-//			//json = ow.writeValueAsString(auction);
-//		} catch (JsonProcessingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		String[] teste = new String[3];
-		teste[0]="Computador&200&09/12/2016";
-		teste[1]="Telemovel&150&08/12/2016";
-		teste[2]="Tablet&175&07/12/2016";
-		Response res = Response.ok(teste).build();
+
+		Auction a1=new Auction();
+		a1.setName("Computador");
+		a1.setHighestBid(200);
+		a1.setData("09/12/2016");
+		a1.setId("1");
+		
+		Auction a2=new Auction();
+		a2.setName("Telemovel");
+		a2.setHighestBid(150);
+		a2.setData("08/12/2016");
+		a2.setId("2");
+		
+		Auction a3=new Auction();
+		a3.setName("Tablet");
+		a3.setHighestBid(175);
+		a3.setData("07/12/2016");
+		a3.setId("3");
+		List<Auction> l = new LinkedList<Auction>();
+		l.add(a1);
+		l.add(a2);
+		l.add(a3);
+		Auctions teste= new Auctions();
+		teste.setAuctions( l);
+		
+		 ObjectMapper mapper = new ObjectMapper(); 
+		 String json=null;
+		try {
+			json = mapper.writeValueAsString(teste);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 System.out.println(json);
+//		String[] teste = new String[3];
+//		teste[0]="Computador&200&09/12/2016";
+//		teste[1]="Telemovel&150&08/12/2016";
+//		teste[2]="Tablet&175&07/12/2016";
+		System.out.println(json);
+		Response res = Response.ok(json).build();
 		return res;
 	}
+	
+	 @POST
+	 @Path("/Auction/bid")
+	 @Consumes(MediaType.APPLICATION_JSON)
+	 public Response getAuction(String bid) {
+	
+		 
+		 JSONParser parser = new JSONParser();
+			JSONObject res;
+			Response rep = null;
+			try {
+				res = (JSONObject) parser.parse(bid);
+				
+				String auctionId =StringEscapeUtils.escapeHtml4((String) res.get("id"));
+				String bidValue = StringEscapeUtils.escapeHtml4((String) res.get("bid"));
+				
+				 System.out.println("leilao id= "+ auctionId +" e valor da bid "+ bidValue);
+				
+				rep = Response.status(200).build();
+			} catch (ParseException e) {
+
+				rep = Response.status(415).build();
+			}
+		return rep;
+	 }
+	 
 	//
 	// @POST
 	// @Path("/Auction")
@@ -255,15 +310,7 @@ public class Server {
 	// return res;
 	// }
 	//
-	// @GET
-	// @Path("/Auction/{id}")
-	// @Produces(MediaType.APPLICATION_JSON)
-	// public Response getAuction(@PathParam("id") String auctionID ) {
-	// //return um leilao
-	// Response res = Response.ok().build();
-	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
-	// return res;
-	// }
+	
 	//
 	// @GET
 	// @Path("/Auction/{id}/bid")
