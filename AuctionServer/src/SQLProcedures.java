@@ -5,20 +5,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 
 public class SQLProcedures {
 
 	// JDBC driver name and database URL
 	final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	final String DB_URL = "jdbc:mysql://localhost:3306/leiloes_sirs"
+	final String DB_URL = "jdbc:mysql://192.168.56.101:3306/leiloes_sirs"
 			+"?verifyServerCertificate=false"
 			+"&useSSL=true"
 			+"&requireSSL=true";
 
 	//  Database credentials
-	final String USER = "root";
-	final String PASS = "root";
+	final String USER = "ssluser";
+	final String PASS = "ssluser";
 
 	public SQLProcedures() {}
 
@@ -102,7 +103,7 @@ public class SQLProcedures {
 		}
 	}
 
-	public void listLeiloes(){
+	public ArrayList<leilao> listLeiloes(){
 
 
 		try {
@@ -110,6 +111,8 @@ public class SQLProcedures {
 
 			ResultSet myRs = getFromDB(sql);
 
+			ArrayList<leilao> leiloes = new ArrayList<leilao>(50);
+			
 			while (myRs.next()) {
 				System.out.println("Id: " + myRs.getString("Id") + ", "
 						+"Highest Bidder: " + myRs.getString("Highest_bidder") + ", "
@@ -118,22 +121,30 @@ public class SQLProcedures {
 						+"End date: " + myRs.getString("End_date") + ", "
 						+"Item: " + myRs.getString("Item_id")
 						);
+					leiloes.add(new leilao(myRs.getInt("Id"), 
+											myRs.getInt("Owner"), 
+											myRs.getInt("Highest_bidder"), 
+											myRs.getInt("Highest_Bid"), 
+											myRs.getDate("End_date"), 
+											myRs.getInt("Item_id")));
 			}
+			
+			return leiloes;
 		} catch (ClassNotFoundException e) {
 			System.err.println("Erro 0: " + e);
 		} catch (SQLException e) {
 			System.err.println("Erro 1: " + e);
 		}
+		return null;
 	}
 
-	public void getUserById(int id){
+	public User getUserById(int id){
 
 		try {
 
 			String sql = "select * from users where Id = ?";
 
 			ResultSet myRs = getFromDB(sql, id);
-
 			while (myRs.next()) {
 				System.out.println("Id: " + myRs.getString("Id") + ", "
 						+"First Name: " + myRs.getString("First_Name") + ", "
@@ -143,15 +154,23 @@ public class SQLProcedures {
 						+"Credit: " + myRs.getString("Credit")
 						);
 			}
+			
+			return new User(myRs.getInt("Id"), 
+							myRs.getString("First_Name"), 
+							myRs.getString("Surname"), 
+							myRs.getString("Password"),
+							myRs.getString("Email"), 
+							myRs.getInt("Credit"));
 		} catch (ClassNotFoundException e) {
 			System.err.println("Erro 0: " + e);
 		} catch (SQLException e) {
 			System.err.println("Erro 1: " + e);
 		}
+		return null;
 
 	}
 
-	public void intertUser(int id, String firstName, String surname, String password, String email){
+	public void insertUser(int id, String firstName, String surname, String password, String email){
 		try {
 			String sql = "INSERT INTO users (id,First_Name,Surname,Password,Email) "
 					+ "VALUES(?, ?, ?, ?, ?);";
