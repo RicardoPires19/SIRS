@@ -7,21 +7,116 @@
     <body>
         <div id="title">
             <p id="auctions"> <b> Auctions </b></p>
+            <input type="button" id="logout" value="Logout" onclick="logout();">
+        </div>
+                
+        <div id="newauction">
+            <a href="./NovoLeilao.html" style="text-decoration:none">Create your Auction!</a>
+        </div>
+        
+        <div id=placebid>
+            <p id="placeyourbid"> <b>Place your Bid! </b></p>
+            
+            <label for="id">Auction ID:</label>
+            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="bidid" align="right" name="bidid">
+            
+            <label for="bid">Your Bid:</label>
+            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="bidvalue" align="right" name="bidvalue">
+            
+            <div class="buttonHolder">
+                <input type="button" value="Make Bid" onclick="submitBid();">
+            </div>
         </div>
         
         <script>
             
-            var message = ['Computador-200-09/12/2016',
-               'Telemovel-150-08/12/2016',
-               'Tablet-175-07/12/2016'];
+            var entityMap = {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': '&quot;',
+              "'": '&#39;',
+              "/": '&#x2F;'
+            };
+
+            function escapeHtml(string) {
+              return String(string).replace(/[&<>"'\/]/g, function (s) {
+                return entityMap[s];
+              });
+            }
             
-            for (var v in message) {
-                var l = message[v].split('-');
-                var newElement = document.createElement('div');
-                newElement.id = message[v];
-                newElement.className = "leilao";
-                newElement.innerHTML = 'Name: ' + l[0] + '<br>' + 'Current Bid: ' + l[1] + '<br>' + 'Expiration Date: ' + l[2] + '<br>' + '<input type="text" placeholder="Insert your Bid" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="bid" name="bid">';
-                document.body.appendChild(newElement);
+            var url = "https://localhost:9000/AuctionServer/Auction";
+            var xmlhttp = new XMLHttpRequest();
+            var message;
+            var i;
+            var token = localStorage.getItem('LoginToken');
+            var email = localStorage.getItem('Email');
+            var time = (new Date()).getTime();
+            
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send(JSON.stringify({token:token, email:email, time:time}));
+            xmlhttp.onreadystatechange = function() {
+                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    message = JSON.parse(xmlhttp.responseText);
+                    var auctions =message.auctions;
+                    for (i=0; i<auctions.length; i++) {
+                        var newElement = document.createElement('div');
+                        newElement.id = i;
+                        newElement.className = "leilao";
+                        newElement.innerHTML = 'Name: ' + message.auctions[i].name + '<br>' + 'Current Bid: ' + message.auctions[i].highestBid + '<br>' + 'Expiration Date: ' + message.auctions[i].data + '<br>' + 'Auction ID: ' +message.auctions[i].id + '<br>';
+                        document.body.appendChild(newElement);
+                    } 
+                }
+                else if(xmlhttp.readyState == 4)
+                    window.alert("Something went wrong! Error:" + xmlhttp.status);
+            };
+            
+            function submitBid() {
+                var bidid = escapeHtml(document.getElementById("bidid").value);
+                var bidvalue = escapeHtml(document.getElementById("bidvalue").value);
+                var url = "https://localhost:9000/AuctionServer/Auction/bid";
+                var xmlhttp = new XMLHttpRequest();
+                var token = JSON.parse(localStorage.getItem('LoginToken'));
+                var email = localStorage.getItem('Email');
+                var time = (new Date()).getTime();
+
+                xmlhttp.open("POST", url, true);
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                xmlhttp.send(JSON.stringify({token:token, email:email, id:bidid, bid:bidvalue, time:time}));
+                xmlhttp.onreadystatechange = function() {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        window.location.reload();
+                    }
+                    else if(xmlhttp.readyState == 4 && xmlhttp.status == 5) {
+                        //bid lower than the current one - error code 5
+                        window.alert("Your bid is lower than the current highest bid!");
+                    }
+                    else if(xmlhttp.readyState == 4 && xmlhttp.status == 6) {
+                        //token is not active - error code 6
+                        //user is sent to login page again
+                        window.alert("Login expired!");
+                        window.location = "https://auctionserver/MenuLogin.html";
+                    }
+                    else if(xmlhttp.readyState == 4) {
+                        window.alert("Something went wrong! Error:" + xmlhttp.status);
+                    }
+                };
+            }
+            
+            function logout() {
+                xmlhttp.open("POST", url, true);
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                var token = JSON.parse(localStorage.getItem('LoginToken'));
+                xmlhttp.send(JSON.stringify({token:token, day:dd, month:mo, year:yy, hours:hh, minutes:min, seconds:ss}));
+                xmlhttp.onreadystatechange = function() {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        localStorage.removeItem("LoginToken");
+                        window.location = "https://auctionserver/";
+                    }
+                    else if(xmlhttp.readyState == 4) {
+                        window.alert("Something went wrong! Error:" + xmlhttp.status);
+                    }
+                };
             }
             
         </script>
