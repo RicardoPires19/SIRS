@@ -29,6 +29,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -56,9 +57,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import  org.apache.commons.lang3.*;
-
-
+import org.apache.commons.lang3.*;
 
 import java.sql.*;
 
@@ -78,6 +77,11 @@ public class Server {
 	private static final char[] KEY_PASSWORD = "2pQAkKWfq7v2VM4Re4aJVXLw3YvbjJUBc9Veq5cu".toCharArray();
 	private static final String PUBLIC_PW = "jBtp6AAsP96rPWjECoCcA==";
 	private static String myURL;
+	private static final int DELTA_TIME = 2 * 60 * 1000; // 2 min?
+	private static ConcurrentHashMap<String, Token> usersLoggedIn;
+	private static SQLProcedures bd;
+	private static final int USER_EXISTS=3;
+	
 
 	public static void main(String[] args) throws Exception {
 		int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
@@ -107,6 +111,9 @@ public class Server {
 		tmf.init(keyStore);
 		sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
 		HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config, sslContext);
+
+		usersLoggedIn = new ConcurrentHashMap<String, Token>();
+		bd = new SQLProcedures();
 
 		System.err.println("REST Server ready... ");
 
@@ -147,17 +154,6 @@ public class Server {
 	 * -------------------------------------------------------------------------------------------------------------
 	 */
 
-	@GET
-	@Path("/Test")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response Teste() {
-
-		System.out.println("teste server");
-		Response rep = Response.ok("SUCESSO").build();
-		// rep.getHeaders().add("Access-Control-Allow-Origin",
-		// "https://localhost");
-		return rep;
-	}
 
 	@POST
 	@Path("/User")
@@ -166,28 +162,33 @@ public class Server {
 
 		JSONParser parser = new JSONParser();
 		JSONObject res;
-		Response rep = null;
+		
+		
 		try {
 			res = (JSONObject) parser.parse(user);
 
 			String firstName = StringEscapeUtils.escapeHtml4((String) res.get("firstName"));
-			String surName =StringEscapeUtils.escapeHtml4((String) res.get("surName"));
-			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
+			String surName = StringEscapeUtils.escapeHtml4((String) res.get("surName"));
+			String email = StringEscapeUtils.escapeHtml4((String) res.get("email"));
 			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
-			String nib = StringEscapeUtils.escapeHtml4((String) res.get("nib"));
+//			String nib = StringEscapeUtils.escapeHtml4((String) res.get("nib"));
 
-			firstName=StringEscapeUtils.escapeHtml4(firstName);
-			// ...
-			System.out.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord + " " + nib);
-
+			System.out.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord);
+			if (UserAlreadyExists(email))
+				return Response.status(USER_EXISTS).build();
+			User novo= new User(firstName,surName,email,passWord);
+			bd.insertUser(firstName, surName, passWord, email);
+			Token token= new ()
+			
+			usersLoggedIn.put(email, value)
+			// if email
 			// stattus =3 email já existe
-			// status =4 nib já existe; url/?id=value
-
-			rep = Response.status(200).build();
-		} catch (ParseException e) {
-
-			rep = Response.status(415).build();
+			
+			Response.ok(token, MediaType.APPLICATION_JSON)).build();
+		}catch(Exception e1){
+			return Response.status(415).build();
 		}
+		
 		return rep;
 	}
 
@@ -201,27 +202,14 @@ public class Server {
 		Response rep = null;
 		try {
 			res = (JSONObject) parser.parse(loggin);
-			
-//			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
-//			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
-//			System.out.println("Loggin User unescaped: " + email + " " + passWord);
-//			System.out.println("Loggin User escaped: " + email + " " + passWord);
-			
-			
-			
 
-			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
+			String email = StringEscapeUtils.escapeHtml4((String) res.get("email"));
 			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
-			String day = StringEscapeUtils.escapeHtml4((String) res.get("day"));
-			String month = StringEscapeUtils.escapeHtml4((String) res.get("month"));
-			String year = StringEscapeUtils.escapeHtml4((String) res.get("year"));
-			String hours = StringEscapeUtils.escapeHtml4((String) res.get("hours"));
-			String minutes = StringEscapeUtils.escapeHtml4((String) res.get("minutes"));
-			String seconds = StringEscapeUtils.escapeHtml4((String) res.get("seconds"));
+
 			System.out.println("Loggin User unescaped: " + email + " " + passWord);
 			System.out.println("Loggin User escaped: " + email + " " + passWord);
-			System.out.println("Time: Day/Month/Year " + day + "/" + month + "/" + year + 
-					" HH/MM/SS " + hours + ":" + minutes + ":" + seconds);
+			System.out.println("Time: Day/Month/Year " + day + "/" + month + "/" + year + " HH/MM/SS " + hours + ":"
+					+ minutes + ":" + seconds);
 
 			// acess BD to check if exists
 			// userName nao existe = 1
@@ -241,22 +229,22 @@ public class Server {
 	public Response ListAuctions() {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-		//Auction auction = new Auction("1", "1", new Date(System.currentTimeMillis()), 10, "2", "1");
+		// Auction auction = new Auction("1", "1", new
+		// Date(System.currentTimeMillis()), 10, "2", "1");
 
-
-		Auction a1=new Auction();
+		Auction a1 = new Auction();
 		a1.setName("Computador");
 		a1.setHighestBid(200);
 		a1.setData("09/12/2016");
 		a1.setId("1");
-		
-		Auction a2=new Auction();
+
+		Auction a2 = new Auction();
 		a2.setName("Telemovel");
 		a2.setHighestBid(150);
 		a2.setData("08/12/2016");
 		a2.setId("2");
-		
-		Auction a3=new Auction();
+
+		Auction a3 = new Auction();
 		a3.setName("Tablet");
 		a3.setHighestBid(175);
 		a3.setData("07/12/2016");
@@ -265,52 +253,74 @@ public class Server {
 		l.add(a1);
 		l.add(a2);
 		l.add(a3);
-		Auctions teste= new Auctions();
-		teste.setAuctions( l);
-		
-		 ObjectMapper mapper = new ObjectMapper(); 
-		 String json=null;
+		Auctions teste = new Auctions();
+		teste.setAuctions(l);
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = null;
 		try {
 			json = mapper.writeValueAsString(teste);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 System.out.println(json);
-//		String[] teste = new String[3];
-//		teste[0]="Computador&200&09/12/2016";
-//		teste[1]="Telemovel&150&08/12/2016";
-//		teste[2]="Tablet&175&07/12/2016";
+		System.out.println(json);
+		// String[] teste = new String[3];
+		// teste[0]="Computador&200&09/12/2016";
+		// teste[1]="Telemovel&150&08/12/2016";
+		// teste[2]="Tablet&175&07/12/2016";
 		System.out.println(json);
 		Response res = Response.ok(json).build();
 		return res;
 	}
-	
-	 @POST
-	 @Path("/Auction/bid")
-	 @Consumes(MediaType.APPLICATION_JSON)
-	 public Response getAuction(String bid) {
-	
-		 
-		 JSONParser parser = new JSONParser();
-			JSONObject res;
-			Response rep = null;
-			try {
-				res = (JSONObject) parser.parse(bid);
-				
-				String auctionId =StringEscapeUtils.escapeHtml4((String) res.get("id"));
-				String bidValue = StringEscapeUtils.escapeHtml4((String) res.get("bid"));
-				
-				 System.out.println("leilao id= "+ auctionId +" e valor da bid "+ bidValue);
-				
-				rep = Response.status(200).build();
-			} catch (ParseException e) {
 
-				rep = Response.status(415).build();
-			}
+	@POST
+	@Path("/Auction/bid")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getAuction(String bid) {
+
+		JSONParser parser = new JSONParser();
+		JSONObject res;
+		Response rep = null;
+		try {
+			res = (JSONObject) parser.parse(bid);
+
+			String auctionId = StringEscapeUtils.escapeHtml4((String) res.get("id"));
+			String bidValue = StringEscapeUtils.escapeHtml4((String) res.get("bid"));
+
+			System.out.println("leilao id= " + auctionId + " e valor da bid " + bidValue);
+
+			rep = Response.status(200).build();
+		} catch (ParseException e) {
+
+			rep = Response.status(415).build();
+		}
 		return rep;
-	 }
-	 
+	}
+
+	private boolean checkFreshness(JSONObject res) {
+
+		int day = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("day")));
+		int month = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("month")));
+		int year = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("year")));
+		int hours = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("hours")));
+		int minutes = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("minutes")));
+		int seconds = Integer.parseInt(StringEscapeUtils.escapeHtml4((String) res.get("seconds")));
+
+		Date clientDate = new Date(year, month, day, hours, minutes, seconds);
+		clientDate.getTime();
+
+		int clientTime = year * month * 12 * day *
+
+				System.currentTimeMillis();
+
+	}
+
+	private boolean UserAlreadyExists(String email) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	//
 	// @POST
 	// @Path("/Auction")
@@ -328,14 +338,14 @@ public class Server {
 	// return res;
 	// }
 	//
-	
+
 	//
 	// @GET
 	// @Path("/Auction/{id}/bid")
 	// @Produces(MediaType.APPLICATION_JSON)
 	// public Response bid(@PathParam("id") String auctionID ) {
 	// //return um leilao
-	//status =5 bid mais baixa que a curent
+	// status =5 bid mais baixa que a curent
 	// Response res = Response.ok().build();
 	// res.getHeaders().add("Access-Control-Allow-Origin", "https://localhost");
 	// return res;

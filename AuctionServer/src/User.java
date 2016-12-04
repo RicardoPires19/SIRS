@@ -19,6 +19,13 @@ public class User {
 	private int credit;
 	
 	public User(){}
+	
+	public User(String firsthName, String surName, String passWord, String email) {
+		this.firsthName = firsthName;
+		this.surName = surName;
+		this.passWord = passWord;
+		this.email = email;
+	}
 
 	public User(String firsthName, String surName, String passWord, String email, int credit) {
 		this.firsthName = firsthName;

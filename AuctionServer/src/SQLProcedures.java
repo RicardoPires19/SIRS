@@ -172,8 +172,8 @@ public class SQLProcedures {
 
 	public void insertUser(int id, String firstName, String surname, String password, String email){
 		try {
-			String sql = "INSERT INTO users (id,First_Name,Surname,Password,Email) "
-					+ "VALUES(?, ?, ?, ?, ?);";
+			String sql = "INSERT INTO users (First_Name,Surname,Password,Email) "
+					+ "VALUES( ?, ?, ?, ?);";
 
 			Connection myConn = getConn();
 
