@@ -73,7 +73,7 @@ public class Server {
 	/**
 	 * @param args
 	 */
-	private static final File KEYSTORE = new File("./AuctionServer.jks");
+	private static final File KEYSTORE = new File("./keystore.jks");
 	private static final char[] JKS_PASSWORD = "e4HutkkfcHR4aj8vEA8UrzUzGm3fswHbTvxrXu3A".toCharArray();
 	private static final char[] KEY_PASSWORD = "2pQAkKWfq7v2VM4Re4aJVXLw3YvbjJUBc9Veq5cu".toCharArray();
 	private static final String PUBLIC_PW = "jBtp6AAsP96rPWjECoCcA==";
@@ -82,7 +82,9 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 		int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
 		System.out.println("Server runing on port: " + port);
-
+		java.nio.file.Path currentRelativePath = Paths.get("");
+		String s1 = currentRelativePath.toAbsolutePath().toString();
+		System.out.println("Current relative path is: " + s1);
 		InetAddress s = localhostAddress();
 		// myURL= String.format("http://%s:%s/",s.getCanonicalHostName(),port);
 		myURL = String.format("https://%s:%s/", "localhost", port);
@@ -200,10 +202,26 @@ public class Server {
 		try {
 			res = (JSONObject) parser.parse(loggin);
 			
+//			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
+//			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
+//			System.out.println("Loggin User unescaped: " + email + " " + passWord);
+//			System.out.println("Loggin User escaped: " + email + " " + passWord);
+			
+			
+			
+
 			String email =StringEscapeUtils.escapeHtml4((String) res.get("email"));
 			String passWord = StringEscapeUtils.escapeHtml4((String) res.get("passWord"));
+			String day = StringEscapeUtils.escapeHtml4((String) res.get("day"));
+			String month = StringEscapeUtils.escapeHtml4((String) res.get("month"));
+			String year = StringEscapeUtils.escapeHtml4((String) res.get("year"));
+			String hours = StringEscapeUtils.escapeHtml4((String) res.get("hours"));
+			String minutes = StringEscapeUtils.escapeHtml4((String) res.get("minutes"));
+			String seconds = StringEscapeUtils.escapeHtml4((String) res.get("seconds"));
 			System.out.println("Loggin User unescaped: " + email + " " + passWord);
 			System.out.println("Loggin User escaped: " + email + " " + passWord);
+			System.out.println("Time: Day/Month/Year " + day + "/" + month + "/" + year + 
+					" HH/MM/SS " + hours + ":" + minutes + ":" + seconds);
 
 			// acess BD to check if exists
 			// userName nao existe = 1
