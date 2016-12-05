@@ -15,35 +15,36 @@ CREATE TABLE users (
   PRIMARY KEY (Id)
 ) AUTO_INCREMENT=1;
 
-
+/*
 CREATE TABLE items (
 	Id mediumint(8) unsigned NOT NULL auto_increment,
 	Name varchar(255) default NULL,
 	PRIMARY KEY (Id)
 ) AUTO_INCREMENT=1;
-
+*/
 
 CREATE TABLE leiloes (
 	Id mediumint(8) unsigned NOT NULL auto_increment,
-	Highest_bidder mediumint(8) unsigned NOT NULL,
+	Highest_bidder mediumint(8) unsigned NOT NULL default Id,
 	Owner mediumint(8) unsigned NOT NULL,
-	Highest_bid mediumint(8) default NULL,
+	Highest_bid mediumint(8) NOT NULL default 0,
 	End_date datetime  default NULL,
-	Item_id mediumint(8) unsigned default NULL,
+    ItemDescription varchar(255) default NULL,
+	/*Item_id mediumint(8) unsigned default NULL,*/
 	PRIMARY KEY (Id),
 	FOREIGN KEY (Owner) REFERENCES users(Id),
-	FOREIGN KEY (Highest_bidder) REFERENCES users(Id),
-	FOREIGN KEY (Item_id) REFERENCES items(Id)
+	FOREIGN KEY (Highest_bidder) REFERENCES users(Id)
+	/*FOREIGN KEY (Item_id) REFERENCES items(Id)*/
 ) AUTO_INCREMENT=1;
 
 
-
+/*
 INSERT INTO items (Id, Name) VALUES (1, "Carro");
 INSERT INTO items (Id, Name) VALUES (2, "Casa");
 INSERT INTO items (Id, Name) VALUES (3, "Apartamento");
 INSERT INTO items (Id, Name) VALUES (4, "Mota");
 INSERT INTO items (Id, Name) VALUES (5, "Computador");
-INSERT INTO items (Id, Name) VALUES (6, "Barco");
+INSERT INTO items (Id, Name) VALUES (6, "Barco");*/
 
 
 INSERT INTO users (id,First_Name,Surname,Password,Email) VALUES (1000,"Xena","Mathis","id","lectus.rutrum@DonecnibhQuisque.com");

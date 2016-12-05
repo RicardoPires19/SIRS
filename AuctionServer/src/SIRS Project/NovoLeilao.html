@@ -8,7 +8,7 @@
         <div id="whiteboard">
                 <p id="auctions"> <b> New Auction </b></p>
             <div id="format">
-                <label for="email">Auction Name</label>
+                <label for="ItemDescription">Intem Description</label>
                 <input type="text" id="email" name="email">
 
                 <label for="newbid">Minimum Bid Value</label>
@@ -44,20 +44,21 @@
             }
 
             function createAuction() {
-                var email = escapeHtml(document.getElementById("email").value);
+                var itemDescription = escapeHtml(document.getElementById("ItemDescription").value);
                 var basebid = escapeHtml(document.getElementById("basebid").value);
                 var closingtime = escapeHtml(document.getElementById("closingtime").value);
                 var url = "https://localhost:9000/AuctionServer/Auction/bid";
                 var xmlhttp = new XMLHttpRequest();
                 var token = JSON.parse(localStorage.getItem('LoginToken'));
+                var email = localStorage.getItem('Email');
                 var time = (new Date()).getTime();
 
                 xmlhttp.open("POST", url, true);
                 xmlhttp.setRequestHeader("Content-Type", "application/json");
-                xmlhttp.send(JSON.stringify({token:token, email:email, bid:basebid, closingtime:closingtime, time:time}));
+                xmlhttp.send(JSON.stringify({token:token,Email:email, ItemDescription:itemDescription, bid:basebid, closingtime:closingtime, time:time}));
                 xmlhttp.onreadystatechange = function() {
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        window.location = "https://auctionserver/Homepage.html";
+                        window.location = "./Homepage.html";
                     }
                     else if(xmlhttp.readyState == 4 && xmlhttp.status == 7) {
                         //auction name already exists - error code 7
@@ -67,7 +68,7 @@
                         //token is not active - error code 6
                         //user is sent to login page again
                         window.alert("Login expired!");
-                        window.location = "https://auctionserver/MenuLogin.html";
+                        window.location = "./MenuLogin.html";
                     }
                     else if(xmlhttp.readyState == 4) {
                         window.alert("Something went wrong! Error:" + xmlhttp.status);

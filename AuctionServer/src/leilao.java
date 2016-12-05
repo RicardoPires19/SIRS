@@ -1,22 +1,28 @@
+import java.io.Serializable;
 import java.sql.Date;
 
-public class leilao {
+public class leilao implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private int ownerId;
 	private int hBidderId;
 	private int hBid;
 	private Date endDate;
-	private int itemId;
+	private String itemDescription;
 	
+	public leilao(){}
 	
-	public leilao(int id, int ownerId, int hBidderId, int hBid, Date endDate, int itemId) {
+	public leilao(int id, int ownerId, int hBidderId, int hBid, Date endDate, String itemDescription) {
 		super();
 		this.id = id;
 		this.ownerId = ownerId;
 		this.hBidderId = hBidderId;
 		this.hBid = hBid;
 		this.endDate = endDate;
-		this.itemId = itemId;
+		this.itemDescription = itemDescription;
 	}
 
 
@@ -70,13 +76,13 @@ public class leilao {
 	}
 
 
-	public int getItemId() {
-		return itemId;
+	public String getItemDescription() {
+		return itemDescription;
 	}
 
 
-	public void setItemId(int itemId) {
-		this.itemId = itemId;
+	public void setItemDescription(String itemDescription) {
+		this.itemDescription = itemDescription;
 	}
 	
 	

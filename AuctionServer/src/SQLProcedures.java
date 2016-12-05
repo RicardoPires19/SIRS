@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class SQLProcedures {
@@ -23,6 +24,18 @@ public class SQLProcedures {
 
 	public SQLProcedures() {}
 
+	private ResultSet getFromDB(String query, String param) throws ClassNotFoundException, SQLException{
+		Connection myConn = null;
+		Class.forName(JDBC_DRIVER);
+		myConn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+		PreparedStatement myStmt = myConn.prepareStatement(query);
+
+		myStmt.setString(1, param);
+
+		return myStmt.executeQuery();
+	}
+	
 	private ResultSet getFromDB(String query, int param) throws ClassNotFoundException, SQLException{
 		Connection myConn = null;
 		Class.forName(JDBC_DRIVER);
@@ -77,21 +90,21 @@ public class SQLProcedures {
 		}
 	}
 
-	public void insertLeilao(int id, int hBidder, int owner, int hBid, Date date, int itemId){
+	public void insertLeilao( int hBidder, int owner, int hBid, Date date, String temDescription){
 		try {
-			String sql = "INSERT INTO leiloes(id, Highest_bidder, Owner, Highest_bid, End_date, Item_id) "
-					+ "VALUES(?, ?, ?, ?, ?, ?);";
+			String sql = "INSERT INTO leiloes( Highest_bidder, Owner, Highest_bid, End_date, ItemDescription) "
+					+ "VALUES( ?, ?, ?, ?, ?);";
 
 			Connection myConn = getConn();
 
 			PreparedStatement myStmt = myConn.prepareStatement(sql);
 
-			myStmt.setInt(1, id);
-			myStmt.setInt(2, hBidder);
-			myStmt.setInt(3, owner);
-			myStmt.setInt(4, hBid);
-			myStmt.setDate(5, date);
-			myStmt.setInt(6, itemId);
+		
+			myStmt.setInt(1, hBidder);
+			myStmt.setInt(2, owner);
+			myStmt.setInt(3, hBid);
+			myStmt.setDate(4, date);
+			myStmt.setString(5, temDescription);
 
 			myStmt.executeUpdate();
 			System.out.println("leilao inserted.");
@@ -103,7 +116,7 @@ public class SQLProcedures {
 		}
 	}
 
-	public ArrayList<leilao> listLeiloes(){
+	public List<leilao> listLeiloes(){
 
 
 		try {
@@ -111,7 +124,7 @@ public class SQLProcedures {
 
 			ResultSet myRs = getFromDB(sql);
 
-			ArrayList<leilao> leiloes = new ArrayList<leilao>(50);
+			List<leilao> leiloes = new ArrayList<leilao>(50);
 			
 			while (myRs.next()) {
 				System.out.println("Id: " + myRs.getString("Id") + ", "
@@ -119,14 +132,14 @@ public class SQLProcedures {
 						+"Owner: " + myRs.getString("Owner") + ", "
 						+"Highest Bid: " + myRs.getString("Highest_Bid") + ", "
 						+"End date: " + myRs.getString("End_date") + ", "
-						+"Item: " + myRs.getString("Item_id")
+						+"ItemDescription: " + myRs.getString("ItemDescription")
 						);
 					leiloes.add(new leilao(myRs.getInt("Id"), 
 											myRs.getInt("Owner"), 
 											myRs.getInt("Highest_bidder"), 
 											myRs.getInt("Highest_Bid"), 
 											myRs.getDate("End_date"), 
-											myRs.getInt("Item_id")));
+											myRs.getString("ItemDescription")));
 			}
 			
 			return leiloes;
@@ -138,13 +151,13 @@ public class SQLProcedures {
 		return null;
 	}
 
-	public User getUserById(int id){
+	public User getUserByEmail(String email){
 
 		try {
 
-			String sql = "select * from users where Id = ?";
+			String sql = "select * from users where Email = ?";
 
-			ResultSet myRs = getFromDB(sql, id);
+			ResultSet myRs = getFromDB(sql, email);
 			while (myRs.next()) {
 				System.out.println("Id: " + myRs.getString("Id") + ", "
 						+"First Name: " + myRs.getString("First_Name") + ", "
@@ -170,20 +183,48 @@ public class SQLProcedures {
 
 	}
 
-	public void insertUser(int id, String firstName, String surname, String password, String email){
+	public leilao getAuctionById(int id) {
+		try {
+
+			String sql = "select * from leiloes where Id = ?";
+
+			ResultSet myRs = getFromDB(sql, id);
+			System.out.println("Id: " + myRs.getString("Id") + ", "
+					+"Highest Bidder: " + myRs.getString("Highest_bidder") + ", "
+					+"Owner: " + myRs.getString("Owner") + ", "
+					+"Highest Bid: " + myRs.getString("Highest_Bid") + ", "
+					+"End date: " + myRs.getString("End_date") + ", "
+					+"ItemDescription: " + myRs.getString("ItemDescription")
+					);
+			return new leilao(myRs.getInt("Id"), 
+					myRs.getInt("Owner"), 
+					myRs.getInt("Highest_bidder"), 
+					myRs.getInt("Highest_Bid"), 
+					myRs.getDate("End_date"), 
+					myRs.getString("ItemDescription"));
+		} catch (ClassNotFoundException e) {
+			System.err.println("Erro 0: " + e);
+		} catch (SQLException e) {
+			System.err.println("Erro 1: " + e);
+		}
+		return null;
+		
+	}
+	
+	public void insertUser(String firstName, String surname, String password, String email){
 		try {
 			String sql = "INSERT INTO users (First_Name,Surname,Password,Email) "
-					+ "VALUES( ?, ?, ?, ?);";
+					+ "VALUES(?, ?, ?);";
 
 			Connection myConn = getConn();
 
 			PreparedStatement myStmt = myConn.prepareStatement(sql);
 
-			myStmt.setInt(1, id);
-			myStmt.setString(2, firstName);
-			myStmt.setString(3, surname);
-			myStmt.setString(4, password);
-			myStmt.setString(5, email);
+			
+			myStmt.setString(1, firstName);
+			myStmt.setString(2, surname);
+			myStmt.setString(3, password);
+			myStmt.setString(4, email);
 
 			int num = myStmt.executeUpdate();
 

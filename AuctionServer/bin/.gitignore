@@ -1,3 +1,4 @@
+/lib/
 /.classpath
 /.project
 /.settings/
@@ -11,11 +12,12 @@
 /Example.cer
 /SQLProcedures.class
 /Server.class
+/Token.class
 /User.class
 /index.html
-/lib/
+/keystore.jks
+/leilao.class
 /lib.rar
 /queries.sql
 /src.rar
-/leilao.class
-/Token.class
+/SIRS Project/
