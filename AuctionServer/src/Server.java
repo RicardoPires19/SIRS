@@ -22,6 +22,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -200,13 +201,13 @@ public class Server {
 
 	}
 
-	@GET
-	@Path("/Auction")
+	@POST
+	@Path("/Auction/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response ListAuctions(String params) {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-
+		
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
@@ -300,7 +301,7 @@ public class Server {
 
 			if (!validateVarChar255(itemDescription))
 				return Response.status(BAD_PARAMS_SIZE).build();
-			
+
 			int baseBid = Integer.parseInt((String) json.get("bid"));
 			if (!validateInt(baseBid))
 				return Response.status(WRONG_PASS).build();

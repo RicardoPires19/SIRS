@@ -13,14 +13,18 @@ public class SQLProcedures {
 
 	// JDBC driver name and database URL
 	final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	final String DB_URL = "jdbc:mysql://192.168.56.101:3306/leiloes_sirs"
-			+"?verifyServerCertificate=false"
-			+"&useSSL=true"
-			+"&requireSSL=true";
+	final String DB_URL = "jdbc:mysql://localhost:3306/leiloes_sirs";
+//			+"?verifyServerCertificate=false;";
+//			+"&useSSL=false"
+//			+"&requireSSL=false;";
 
 	//  Database credentials
-	final String USER = "ssluser";
-	final String PASS = "ssluser";
+//	final String USER = "ssluser";
+//	final String PASS = "ssluser";
+	
+	final String USER="root";
+	final String PASS="numero15395";
+	
 
 	public SQLProcedures() {}
 
@@ -158,7 +162,7 @@ public class SQLProcedures {
 			String sql = "select * from users where Email = ?";
 
 			ResultSet myRs = getFromDB(sql, email);
-			while (myRs.next()) {
+			if (myRs.next()) {
 				System.out.println("Id: " + myRs.getString("Id") + ", "
 						+"First Name: " + myRs.getString("First_Name") + ", "
 						+"Surname: " + myRs.getString("Surname") + ", "

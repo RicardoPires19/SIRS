@@ -1,6 +1,5 @@
 DROP DATABASE leiloes_sirs;
-
-create database leiloes_sirs;
+CREATE DATABASE leiloes_sirs;
 
 use leiloes_sirs;
 
@@ -26,16 +25,14 @@ CREATE TABLE items (
 
 CREATE TABLE leiloes (
 	Id mediumint(8) unsigned NOT NULL auto_increment,
-	Highest_bidder mediumint(8) unsigned NOT NULL default Id,
+	Highest_bidder mediumint(8) unsigned NOT NULL,
 	Owner mediumint(8) unsigned NOT NULL,
-	Highest_bid int(8) NOT NULL default 0,
+	Highest_bid mediumint(8) default 0,
 	End_date datetime  default NULL,
-    ItemDescription TEXT default NULL,
-	/*Item_id mediumint(8) unsigned default NULL,*/
+	ItemDescription TEXT default NULL,
 	PRIMARY KEY (Id),
 	FOREIGN KEY (Owner) REFERENCES users(Id),
 	FOREIGN KEY (Highest_bidder) REFERENCES users(Id)
-	/*FOREIGN KEY (Item_id) REFERENCES items(Id)*/
 ) AUTO_INCREMENT=1;
 
 
