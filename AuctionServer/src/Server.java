@@ -60,6 +60,7 @@ public class Server {
 	private static final int BAD_TOKEN = 6;
 	private static final int BAD_PARAMS_SIZE = 7;
 	private static final int AUCTION_NOT_EXISTS = 8;
+	private static final int NOT_FRESH = 9;
 	private static SecureRandom random;
 
 	public static void main(String[] args) throws Exception {
@@ -143,29 +144,44 @@ public class Server {
 		JSONObject json;
 		try {
 			json = (JSONObject) parser.parse(user);
-			if (!checkFreshness(json))
+			if (checkFreshness(json)){
+				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
+				if (email != null){
+					email = email.trim();
+					
+					if (validateVarChar255(email) && !email.isEmpty()){
+						if (bd.getUserByEmail(email) != null){
+							String firstName = StringEscapeUtils.escapeHtml4((String) json.get("firstName"));
+							if (!validateVarChar255(firstName)){
+								String surName = StringEscapeUtils.escapeHtml4((String) json.get("surName"));
+								if (!validateVarChar255(surName))
+									return Response.status(BAD_PARAMS_SIZE).build();
+								String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
+								String salt = genSalt();
+								System.out
+										.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord + " " + salt);
+								System.out.println("salted hash " + sha3(passWord, salt));
+								bd.insertUser(firstName, surName, sha3(passWord, salt), email, salt);
+
+								return GenToken(email);
+							}
+								return Response.status(BAD_PARAMS_SIZE).build();
+
+							
+						}
+							return Response.status(EMAIL_EXISTS).build();
+
+						
+					}
+						return Response.status(BAD_PARAMS_SIZE).build();
+					
+				}
+					return Response.status(BAD_PARAMS_SIZE).build();
+				
+				
+			}else
 				return Response.status(400).build();
-			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			if (!validateVarChar255(email))
-				return Response.status(BAD_PARAMS_SIZE).build();
-			if (bd.getUserByEmail(email) != null)
-				return Response.status(EMAIL_EXISTS).build();
-
-			String firstName = StringEscapeUtils.escapeHtml4((String) json.get("firstName"));
-			if (!validateVarChar255(firstName))
-				return Response.status(BAD_PARAMS_SIZE).build();
-
-			String surName = StringEscapeUtils.escapeHtml4((String) json.get("surName"));
-			if (!validateVarChar255(surName))
-				return Response.status(BAD_PARAMS_SIZE).build();
-			String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
-			String salt = genSalt();
-			System.out
-					.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord + " " + salt);
-			System.out.println("salted hash " + sha3(passWord, salt));
-			bd.insertUser(firstName, surName, sha3(passWord, salt), email, salt);
-
-			return GenToken(email);
+			
 		} catch (Exception e1) {
 			return Response.status(400).build();
 		}
@@ -176,13 +192,13 @@ public class Server {
 	@Path("/Loggin")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response loggin(String loggin) {
-
+		System.out.println("loggin" + loggin);
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
 			json = (JSONObject) parser.parse(loggin);
 			if (!checkFreshness(json))
-				return Response.status(400).build();
+				return Response.status(NOT_FRESH).build();
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
 			String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
 			System.out.println("Loggin User unescaped: " + email + " " + passWord);
@@ -195,7 +211,7 @@ public class Server {
 				return Response.status(WRONG_PASS).build();
 			return GenToken(email);
 		} catch (Exception e) {
-
+			e.printStackTrace();
 			return Response.status(400).build();
 		}
 
@@ -207,7 +223,7 @@ public class Server {
 	public Response ListAuctions(String params) {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-		
+
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
@@ -358,7 +374,7 @@ public class Server {
 
 	private boolean checkFreshness(JSONObject res) {
 
-		long clientTime = Long.valueOf((String) res.get("time")).longValue();
+		long clientTime = (long) res.get("time");
 		long serverTime = System.currentTimeMillis();
 		return Math.abs(serverTime - clientTime) < DELTA_TIME;
 
