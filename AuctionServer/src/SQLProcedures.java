@@ -164,7 +164,8 @@ public class SQLProcedures {
 						+"Surname: " + myRs.getString("Surname") + ", "
 						+"Password: " + myRs.getString("Password") + ", "
 						+"Email: " + myRs.getString("Email") + ", "
-						+"Credit: " + myRs.getString("Credit")
+						+"Credit: " + myRs.getString("Credit") +", "
+						+"Salt: " + myRs.getString("Salt") +", "
 						);
 			}
 			
@@ -173,7 +174,9 @@ public class SQLProcedures {
 							myRs.getString("Surname"), 
 							myRs.getString("Password"),
 							myRs.getString("Email"), 
-							myRs.getInt("Credit"));
+							myRs.getInt("Credit"),
+							myRs.getString("Salt")
+							);
 		} catch (ClassNotFoundException e) {
 			System.err.println("Erro 0: " + e);
 		} catch (SQLException e) {
@@ -211,10 +214,10 @@ public class SQLProcedures {
 		
 	}
 	
-	public void insertUser(String firstName, String surname, String password, String email){
+	public void insertUser(String firstName, String surname, String password, String email,String salt){
 		try {
-			String sql = "INSERT INTO users (First_Name,Surname,Password,Email) "
-					+ "VALUES(?, ?, ?);";
+			String sql = "INSERT INTO users (First_Name,Surname,Password,Email,Salt) "
+					+ "VALUES(?, ?, ?,?,?);";
 
 			Connection myConn = getConn();
 
@@ -225,6 +228,7 @@ public class SQLProcedures {
 			myStmt.setString(2, surname);
 			myStmt.setString(3, password);
 			myStmt.setString(4, email);
+			myStmt.setString(5, salt);
 
 			int num = myStmt.executeUpdate();
 

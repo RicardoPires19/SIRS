@@ -1,8 +1,9 @@
+/Database.sql
+/SIRS Project/
 /lib/
 /.classpath
 /.project
 /.settings/
-/Auction.class
 /AuctionServer.jks
 /Auctions.class
 /CORSFilter.class
@@ -17,7 +18,4 @@
 /index.html
 /keystore.jks
 /leilao.class
-/lib.rar
 /queries.sql
-/src.rar
-/SIRS Project/

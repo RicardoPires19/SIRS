@@ -18,24 +18,28 @@ public class User {
 	
 	private int credit;
 	
+	private String salt;
+	
 	public User(){}
 	
-	public User(String firsthName, String surName, String passWord, String email) {
+	public User(String firsthName, String surName, String passWord, String email,String salt) {
 		this.firsthName = firsthName;
 		this.surName = surName;
 		this.passWord = passWord;
 		this.email = email;
+		this.salt=salt;
 	}
 
-	public User(String firsthName, String surName, String passWord, String email, int credit) {
+	public User(String firsthName, String surName, String passWord, String email, int credit,String salt) {
 		this.firsthName = firsthName;
 		this.surName = surName;
 		this.passWord = passWord;
 		this.email = email;
 		this.credit = credit;
+		this.salt=salt;
 	}
 	
-	public User(int id, String firsthName, String surName, String passWord, String email, int credit) {
+	public User(int id, String firsthName, String surName, String passWord, String email, int credit,String salt) {
 		this.firsthName = firsthName;
 		this.surName = surName;
 		this.passWord = passWord;
@@ -90,5 +94,13 @@ public class User {
 	
 	public void setCredit(int credit) {
 		this.credit = credit;
+	}
+
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
 }

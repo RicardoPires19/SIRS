@@ -1,23 +1,24 @@
 
 public class Token {
 
-	private int randomNum;
+	private String radomNum;
 	private long timeStamp;
 
 	public Token() {
 
 	}
 
-	public Token(int randomNum, long timeStamp) {
-
+	public Token(String radomNum, long timeStamp) {
+		this.radomNum=radomNum;
+		this.timeStamp=timeStamp;
 	}
 
-	public int getRandomNum() {
-		return randomNum;
+	public String getradomNum() {
+		return radomNum;
 	}
 
-	public void setRandomNum(int randomNum) {
-		this.randomNum = randomNum;
+	public void setradomNum(String radomNumNum) {
+		this.radomNum = radomNumNum;
 	}
 
 	public long getTimeStamp() {
@@ -36,7 +37,7 @@ public class Token {
 			return false;
 		Token t = (Token) o;
 
-		return (this.randomNum == t.getRandomNum()) && (t.getTimeStamp() == t.getRandomNum());
+		return (this.radomNum.equals(t.getradomNum())   ) && (t.getTimeStamp() == timeStamp);
 
 	}
 

@@ -10,6 +10,7 @@ CREATE TABLE users (
   First_Name varchar(255) default NULL,
   Surname varchar(255) default NULL,
   Password TEXT default NULL,
+    Salt TEXT default NULL,
   Email varchar(255) default NULL,
   Credit mediumint(8) default 10000,
   PRIMARY KEY (Id)
@@ -27,9 +28,9 @@ CREATE TABLE leiloes (
 	Id mediumint(8) unsigned NOT NULL auto_increment,
 	Highest_bidder mediumint(8) unsigned NOT NULL default Id,
 	Owner mediumint(8) unsigned NOT NULL,
-	Highest_bid mediumint(8) NOT NULL default 0,
+	Highest_bid int(8) NOT NULL default 0,
 	End_date datetime  default NULL,
-    ItemDescription varchar(255) default NULL,
+    ItemDescription TEXT default NULL,
 	/*Item_id mediumint(8) unsigned default NULL,*/
 	PRIMARY KEY (Id),
 	FOREIGN KEY (Owner) REFERENCES users(Id),
