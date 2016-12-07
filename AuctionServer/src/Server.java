@@ -144,44 +144,26 @@ public class Server {
 		JSONObject json;
 		try {
 			json = (JSONObject) parser.parse(user);
-			if (checkFreshness(json)){
+			if (checkFreshness(json)) {
 				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-				if (email != null){
-					email = email.trim();
-					
-					if (validateVarChar255(email) && !email.isEmpty()){
-						if (bd.getUserByEmail(email) != null){
-							String firstName = StringEscapeUtils.escapeHtml4((String) json.get("firstName"));
-							if (!validateVarChar255(firstName)){
-								String surName = StringEscapeUtils.escapeHtml4((String) json.get("surName"));
-								if (!validateVarChar255(surName))
-									return Response.status(BAD_PARAMS_SIZE).build();
-								String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
-								String salt = genSalt();
-								System.out
-										.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord + " " + salt);
-								System.out.println("salted hash " + sha3(passWord, salt));
-								bd.insertUser(firstName, surName, sha3(passWord, salt), email, salt);
+				String firstName = StringEscapeUtils.escapeHtml4((String) json.get("firstName"));
+				String surName = StringEscapeUtils.escapeHtml4((String) json.get("surName"));
+				if (validateVarChar255(email) && validateVarChar255(firstName) && validateVarChar255(surName)) {
+					if (bd.getUserByEmail(email) != null) {
+						String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
+						String salt = genSalt();
+						System.out.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord
+								+ " " + salt);
+						System.out.println("salted hash " + sha3(passWord, salt));
+						bd.insertUser(firstName, surName, sha3(passWord, salt), email, salt);
 
-								return GenToken(email);
-							}
-								return Response.status(BAD_PARAMS_SIZE).build();
-
-							
-						}
-							return Response.status(EMAIL_EXISTS).build();
-
-						
+						return GenToken(email);
 					}
-						return Response.status(BAD_PARAMS_SIZE).build();
-					
+					return Response.status(EMAIL_EXISTS).build();
 				}
-					return Response.status(BAD_PARAMS_SIZE).build();
-				
-				
-			}else
-				return Response.status(400).build();
-			
+				return Response.status(BAD_PARAMS_SIZE).build();
+			}
+			return Response.status(400).build();
 		} catch (Exception e1) {
 			return Response.status(400).build();
 		}
@@ -197,19 +179,22 @@ public class Server {
 		JSONObject json;
 		try {
 			json = (JSONObject) parser.parse(loggin);
-			if (!checkFreshness(json))
-				return Response.status(NOT_FRESH).build();
-			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
-			System.out.println("Loggin User unescaped: " + email + " " + passWord);
-			System.out.println("Loggin User escaped: " + email + " " + passWord);
+			if (checkFreshness(json)) {
 
-			User u = bd.getUserByEmail(email);
-			if (u == null)
-				return Response.status(EMAIL_NOT_EXISTS).build();
-			if (!u.getPassWord().equals(sha3(passWord, u.getSalt())))
-				return Response.status(WRONG_PASS).build();
-			return GenToken(email);
+				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
+				String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
+				System.out.println("Loggin User unescaped: " + email + " " + passWord);
+				System.out.println("Loggin User escaped: " + email + " " + passWord);
+
+				User u = bd.getUserByEmail(email);
+				if (u == null)
+					return Response.status(EMAIL_NOT_EXISTS).build();
+				if (!u.getPassWord().equals(sha3(passWord, u.getSalt())))
+					return Response.status(WRONG_PASS).build();
+				return GenToken(email);
+			}
+			return Response.status(NOT_FRESH).build();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(400).build();
@@ -229,21 +214,25 @@ public class Server {
 		try {
 			json = (JSONObject) parser.parse(params);
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			if (!checkFreshness(json))
-				return Response.status(400).build();
-			if (bd.getUserByEmail(email) == null)
-				return Response.status(EMAIL_NOT_EXISTS).build();
+			if (checkFreshness(json)) {
+				if (ValidToken(json, email)) {
+					if (bd.getUserByEmail(email) != null) {
+						Auctions auctions = new Auctions(bd.listLeiloes());
 
-			if (!ValidToken(json, email))
+						ObjectMapper mapper = new ObjectMapper();
+						String auctionsJson = mapper.writeValueAsString(auctions);
+
+						System.out.println(auctionsJson);
+						System.out.println(json);
+						return Response.ok(auctionsJson).build();
+					}
+					return Response.status(EMAIL_NOT_EXISTS).build();
+
+				}
 				return Response.status(BAD_TOKEN).build();
-			Auctions auctions = new Auctions(bd.listLeiloes());
+			}
+			return Response.status(400).build();
 
-			ObjectMapper mapper = new ObjectMapper();
-			String auctionsJson = mapper.writeValueAsString(auctions);
-
-			System.out.println(auctionsJson);
-			System.out.println(json);
-			return Response.ok(auctionsJson).build();
 		} catch (Exception e) {
 			return Response.status(400).build();
 		}
@@ -261,33 +250,34 @@ public class Server {
 		try {
 			json = (JSONObject) parser.parse(params);
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			if (!checkFreshness(json))
-				return Response.status(400).build();
-			User u = bd.getUserByEmail(email);
-			if (u == null)
-				return Response.status(EMAIL_NOT_EXISTS).build();
+			if (checkFreshness(json)) {
+				if (ValidToken(json, email)) {
+					User u = bd.getUserByEmail(email);
+					if (u != null) {
+						String auctionId = StringEscapeUtils.escapeHtml4((String) json.get("id"));
+						String bidValue = StringEscapeUtils.escapeHtml4((String) json.get("bid"));
+						int leilaoId = Integer.parseInt(auctionId);
+						leilao l = bd.getAuctionById(leilaoId);
+						if (l == null)
+							return Response.status(AUCTION_NOT_EXISTS).build();
+						int bvalue = Integer.parseInt(bidValue);
+						if (!validateInt(bvalue))
+							return Response.status(BAD_PARAMS_SIZE).build();
+						if (bvalue <= l.gethBid())
+							return Response.status(LOW_BID).build();
+						bd.updateBid(leilaoId, u.getId(), bvalue);
+						System.out.println(
+								"leilao id= " + auctionId + " e valor da bid " + bidValue + "user id" + u.getId());
+						return Response.status(200).build();
+					}
+					return Response.status(EMAIL_NOT_EXISTS).build();
 
-			if (!ValidToken(json, email))
+				}
 				return Response.status(BAD_TOKEN).build();
 
-			String auctionId = StringEscapeUtils.escapeHtml4((String) json.get("id"));
-			String bidValue = StringEscapeUtils.escapeHtml4((String) json.get("bid"));
-			int leilaoId = Integer.parseInt(auctionId);
-			leilao l = bd.getAuctionById(leilaoId);
-			if (l == null)
-				return Response.status(AUCTION_NOT_EXISTS).build();
+			}
+			return Response.status(400).build();
 
-			int bvalue = Integer.parseInt(bidValue);
-			if (!validateInt(bvalue))
-				return Response.status(BAD_PARAMS_SIZE).build();
-
-			if (bvalue <= l.gethBid())
-				return Response.status(LOW_BID).build();
-			bd.updateBid(leilaoId, u.getId(), bvalue);
-
-			System.out.println("leilao id= " + auctionId + " e valor da bid " + bidValue + "user id" + u.getId());
-
-			return Response.status(200).build();
 		} catch (Exception e) {
 
 			return Response.status(400).build();
@@ -304,34 +294,42 @@ public class Server {
 
 		try {
 			json = (JSONObject) parser.parse(params);
-			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			if (!checkFreshness(json))
-				return Response.status(400).build();
-			User u = bd.getUserByEmail(email);
-			if (u == null)
+
+			if (checkFreshness(json)) {
+				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
+				if (ValidToken(json, email)) {
+
+					User u = bd.getUserByEmail(email);
+					if (u != null) {
+						String itemDescription = StringEscapeUtils.escapeHtml4((String) json.get("ItemDescription"));
+						if (validateVarChar255(itemDescription)) {
+							int baseBid = Integer.parseInt((String) json.get("bid"));
+							if (validateInt(baseBid)) {
+								String closingtime = (String) json.get("closingtime");
+
+								SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy");
+								// date java util
+								Date aux = (Date) sdf.parse(closingtime);
+								System.out.println();
+								// date sql
+								Date date = new Date(aux.getTime());
+								bd.insertLeilao(u.getId(), u.getId(), baseBid, date, itemDescription);
+
+								return Response.status(200).build();
+							}
+							return Response.status(BAD_PARAMS_SIZE).build();
+
+						}
+						return Response.status(BAD_PARAMS_SIZE).build();
+
+					}
+					return Response.status(BAD_TOKEN).build();
+
+				}
 				return Response.status(EMAIL_NOT_EXISTS).build();
-			if (!ValidToken(json, email))
-				return Response.status(BAD_TOKEN).build();
 
-			String itemDescription = StringEscapeUtils.escapeHtml4((String) json.get("ItemDescription"));
-
-			if (!validateVarChar255(itemDescription))
-				return Response.status(BAD_PARAMS_SIZE).build();
-
-			int baseBid = Integer.parseInt((String) json.get("bid"));
-			if (!validateInt(baseBid))
-				return Response.status(WRONG_PASS).build();
-			String closingtime = (String) json.get("closingtime");
-
-			SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy");
-			// date java util
-			Date aux = (Date) sdf.parse(closingtime);
-			System.out.println();
-			// date sql
-			Date date = new Date(aux.getTime());
-			bd.insertLeilao(u.getId(), u.getId(), baseBid, date, itemDescription);
-
-			return Response.status(200).build();
+			}
+			return Response.status(400).build();
 
 		} catch (Exception e) {
 			return Response.status(400).build();
@@ -348,15 +346,19 @@ public class Server {
 		try {
 			json = (JSONObject) parser.parse(params);
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
-			if (!checkFreshness(json))
-				return Response.status(400).build();
-			User u = bd.getUserByEmail(email);
-			if (u == null)
-				return Response.status(EMAIL_NOT_EXISTS).build();
-			if (!ValidToken(json, email))
+			if (checkFreshness(json)) {
+				if (ValidToken(json, email)) {
+					User u = bd.getUserByEmail(email);
+					if (u == null)
+						return Response.status(EMAIL_NOT_EXISTS).build();
+
+					usersLoggedIn.remove(email);
+					return Response.status(200).build();
+				}
 				return Response.status(BAD_TOKEN).build();
-			usersLoggedIn.remove(email);
-			return Response.status(200).build();
+
+			}
+			return Response.status(400).build();
 
 		} catch (Exception e) {
 			return Response.status(400).build();
@@ -416,7 +418,14 @@ public class Server {
 	}
 
 	private boolean validateVarChar255(String text) {
-		return text.length() <= 255;
+		if (text != null) {
+			text = text.trim();
+			if (!text.isEmpty()) {
+				return text.length() <= 255;
+			}
+		}
+		return false;
+
 	}
 
 	private boolean validateInt(int value) {
