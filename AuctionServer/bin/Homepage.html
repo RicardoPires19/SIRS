@@ -18,10 +18,10 @@
             <p id="placeyourbid"> <b>Place your Bid! </b></p>
             
             <label for="id">Auction ID:</label>
-            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' maxlength="3" id="bidid" align="right" name="bidid">
+            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="bidid" align="right" name="bidid">
             
             <label for="bid">Your Bid:</label>
-            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' maxlength="4" id="bidvalue" align="right" name="bidvalue">
+            <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="bidvalue" align="right" name="bidvalue">
             
             <div class="buttonHolder">
                 <input type="button" value="Make Bid" onclick="submitBid();">
@@ -45,25 +45,17 @@
               });
             }
             
-		function checkmin(string) {
-			if(string.length == 0){
-				window.alert("Empty field!");
-				window.location("https://localhost/Homepage.html");
-			}
-		}
+		window.onbeforeunload = function() {
+			logout();
+		};
 
-
-            window.onbeforeunload = function(){
-                
-            }
-            
             var url = "https://localhost:9000/AuctionServer/Auction/list";
             var xmlhttp = new XMLHttpRequest();
             var message;
             var i;
             var token = localStorage.getItem('LoginToken');
             var email = localStorage.getItem('Email');
-            var time = (new Date()).getTime(); 
+            var time = (new Date()).getTime();
             
             xmlhttp.open("POST", url, true);
 	    xmlhttp.setRequestHeader("Content-Type", "application/json");
@@ -92,8 +84,7 @@
                 var token = localStorage.getItem('LoginToken');
                 var email = localStorage.getItem('Email');
                 var time = (new Date()).getTime();
-		checkmin(bidid);
-		checkmin(bidvalue);
+
                 xmlhttp.open("POST", url, true);
                 xmlhttp.setRequestHeader("Content-Type", "application/json");
                 xmlhttp.send(JSON.stringify({token:token, email:email, id:bidid, bid:bidvalue, time:time}));
@@ -109,7 +100,7 @@
                         //token is not active - error code 6
                         //user is sent to login page again
                         window.alert("Login expired!");
-                        window.location = "https://localhost/MenuLogin.html";
+                        window.location = "./MenuLogin.html";
                     }
                     else if(xmlhttp.readyState == 4) {
                         window.alert("Something went wrong! Error:" + xmlhttp.status);
@@ -119,18 +110,18 @@
             
             function logout() {
                 var url = "https://localhost:9000/AuctionServer/Loggout";
-                var email = localStorage.getItem('Email');
-                var time = (new Date()).getTime();
+                 var email = localStorage.getItem('Email');
+		var time = (new Date()).getTime();
 
-                var xmlhttp = new XMLHttpRequest();
-                xmlhttp.open("POST", url, true);
+            var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("POST", url, false);
                 xmlhttp.setRequestHeader("Content-Type", "application/json");
                 var token = localStorage.getItem('LoginToken');
                 xmlhttp.send(JSON.stringify({token:token, email:email,time:time}));
                 xmlhttp.onreadystatechange = function() {
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                         localStorage.removeItem("LoginToken");
-                        window.location = "https://localhost/MenuLogin.html";
+                        window.location = "./index.html";
                     }
                     else if(xmlhttp.readyState == 4) {
                         window.alert("Something went wrong! Error:" + xmlhttp.status);

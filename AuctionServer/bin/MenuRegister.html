@@ -8,16 +8,16 @@
             <div id="whiteboard">
                 <div id="format">
                     <label for="firstName">First Name</label>
-                    <input type="text" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 126) || (event.charCode == 96) || (event.charCode == 94) || (event.charCode == 146))" maxlength="255" id="firstName" name="firstName">
+                    <input type="text" onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 126) || (event.charCode == 96) || (event.charCode == 94) || (event.charCode == 146))" id="firstName" name="firstName">
 
                     <label for="lastName">Last Name</label>
-                    <input type="text" onkeypress="return ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 126) || (event.charCode == 96) || (event.charCode == 94) || (event.charCode == 146))" maxlength="255" id="lastName" name="lastName">
+                    <input type="text" onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 126) || (event.charCode == 96) || (event.charCode == 94) || (event.charCode == 146))" id="lastName" name="lastName">
 
                     <label for="email">Email</label>
-                    <input type="text" onkeypress="return ((event.charCode == 45) || (event.charCode == 46) || (event.charCode == 95) || (event.charCode == 64) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122))" maxlength="255" id="email" name="email">
+                    <input type="text" onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 64) || (event.charCode == 46))" id="email" name="email">
 
                     <label for="password">Password</label>
-                    <input type="password" maxlength="50" id="password" name="password">
+                    <input type="password" onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode == 126) || (event.charCode == 96) || (event.charCode == 94) || (event.charCode == 146))" id="password" name="password">
 <!--
                     <label for="nib">Please insert your NIB</label>
                     <input type="text" onkeypress='return event.charCode >= 48 && event.charCode <= 57' id="nib" name="nib">
@@ -40,23 +40,11 @@
                           });
                         }
                         
-			function checkmin(string) {
-				if(string.length == 0){
-					window.alert("Empty field!");
-					window.location("https://localhost/MenuRegister.html");
-				}
-			}
-
-
                         function submit() {
                             var firstName = escapeHtml(document.getElementById("firstName").value);
                             var lastName = escapeHtml(document.getElementById("lastName").value);
                             var email = escapeHtml(document.getElementById("email").value);
                             var password = escapeHtml(document.getElementById("password").value);
-				checkmin(firstName);
-				checkmin(lastName);
-				checkmin(email);
-				checkmin(password); 
                             //var nib = escapeHtml(document.getElementById("nib").value);
                             var url = "https://localhost:9000/AuctionServer/User";
                             var xmlhttp = new XMLHttpRequest();

@@ -1,0 +1,104 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <title>Leilões SIRS</title>
+        <link rel="stylesheet" href="NovoLeilao.css">
+    </head>
+    <body>
+        <div id="whiteboard">
+                <p id="auctions"> <b> New Auction </b></p>
+ 		<input type="button" id="logout" value="Logout" onclick="logout();">
+            <div id="format">
+                <label for="ItemDescription">Item Description</label>
+                <input type="text" id="ItemDescription" name="email">
+
+                <label for="newbid">Minimum Bid Value</label>
+                <input type="text" id="basebid" name="basebid">
+                    
+                <label for="closingtime">Auction Closing Time</label>
+                <div id="data">
+                    <input type="date" id="closingtime" name="closingtime">
+                </div>
+                    
+                <div id="submitbutton">
+                    <input type="button" value="Create Auction" onclick="createAuction();">
+                </div>
+                    
+            </div>
+        </div>
+        
+        <script>
+            
+            var entityMap = {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': '&quot;',
+              "'": '&#39;',
+              "/": '&#x2F;'
+            };
+
+            function escapeHtml(string) {
+              return String(string).replace(/[&<>"'\/]/g, function (s) {
+                return entityMap[s];
+              });
+            }
+
+            function createAuction() {
+                var itemDescription = escapeHtml(document.getElementById("ItemDescription").value);
+                var basebid = escapeHtml(document.getElementById("basebid").value);
+                var  aux= (document.getElementById("closingtime").value);
+		var closingtime = (new Date(aux)).getTime();
+                var url = "https://localhost:9000/AuctionServer/Auction";
+                var xmlhttp = new XMLHttpRequest();
+                var token = localStorage.getItem('LoginToken');
+                var email = localStorage.getItem('Email');
+                var time = (new Date()).getTime();
+
+                xmlhttp.open("POST", url, true);
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                xmlhttp.send(JSON.stringify({token:token,Email:email, ItemDescription:itemDescription, bid:basebid, closingtime:closingtime, time:time}));
+                xmlhttp.onreadystatechange = function() {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			window.alert("Sucessed Auction");
+                        window.location = "https://localhost/Homepage.html";
+                    }
+                    else if(xmlhttp.readyState == 4 && xmlhttp.status == 7) {
+                        //auction name already exists - error code 7
+                        window.alert("The auction name you chose already exists!");
+                    }
+                    else if(xmlhttp.readyState == 4 && xmlhttp.status == 6) {
+                        //token is not active - error code 6
+                        //user is sent to login page again
+                        window.alert("Login expired!");
+                        window.location = "./MenuLogin.html";
+                    }
+                    else if(xmlhttp.readyState == 4) {
+                        window.alert("Something went wrong! Error:" + xmlhttp.status);
+                    }
+                };
+		function logout() {
+                var url = "https://localhost:9000/AuctionServer/Loggout";
+                 var email = localStorage.getItem('Email');
+		var time = (new Date()).getTime();
+
+           	 var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("POST", url, true);
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                var token = localStorage.getItem('LoginToken');
+                xmlhttp.send(JSON.stringify({token:token, email:email,time:time}));
+                xmlhttp.onreadystatechange = function() {
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        localStorage.removeItem("LoginToken");
+                        window.location = "./index.html";
+                    }
+                    else if(xmlhttp.readyState == 4) {
+                        window.alert("Something went wrong! Error:" + xmlhttp.status);
+                    }
+                };
+            }
+            
+        </script>
+        
+    </body>
+</html>

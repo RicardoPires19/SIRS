@@ -9,10 +9,10 @@
         <div id="whiteboard">
             <div id="format">
                 <label for="email">Email</label>
-                <input type="text" onkeypress="return ((event.charCode == 45) || (event.charCode == 46) || (event.charCode == 95) || (event.charCode == 64) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122))" maxlength="255" id="email" name="email">
+                <input type="text"  id="email" name="email">
 
                 <label for="password">Password</label>
-                <input type="password" maxlength="50" id="password" name="password">
+                <input type="password"  id="password" name="password">
   
                 <input type="submit" onclick="submit();" value="Login">
                 <script>    
@@ -30,14 +30,7 @@
                         return entityMap[s];
                       });
                     }
-                    function checkmin(string) {
-				if(string.length == 0){
-					window.alert("Empty field!");
-					window.location.reload();
-				}
-			}
-
-
+                    
                     function submit() {
                         var email = escapeHtml(document.getElementById("email").value);
                         var password = escapeHtml(document.getElementById("password").value);

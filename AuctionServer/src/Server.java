@@ -187,8 +187,8 @@ public class Server {
 
 				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
 				String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
-				System.out.println("Loggin User unescaped: " + email + " " + passWord);
-				System.out.println("Loggin User escaped: " + email + " " + passWord);
+//				System.out.println("Loggin User unescaped: " + email + " " + passWord);
+//				System.out.println("Loggin User escaped: " + email + " " + passWord);
 
 				User u = bd.getUserByEmail(email);
 				if (u == null)
@@ -212,7 +212,7 @@ public class Server {
 	public Response ListAuctions(String params) {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-		System.out.println("jason " + params);
+//		System.out.println("jason " + params);
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
@@ -227,7 +227,7 @@ public class Server {
 						String auctionsJson = mapper.writeValueAsString(auctions);
 
 						System.out.println(auctionsJson);
-						System.out.println(json);
+//						System.out.println(json);
 						return Response.ok(auctionsJson).build();
 					}
 					return Response.status(EMAIL_NOT_EXISTS).build();
@@ -377,7 +377,7 @@ public class Server {
 		ObjectMapper mapper = new ObjectMapper();
 		String tokenJson = null;
 		tokenJson = mapper.writeValueAsString(token);
-		System.out.println("new token: " + tokenJson);
+//		System.out.println("new token: " + tokenJson);
 		return Response.ok(tokenJson, MediaType.APPLICATION_JSON).build();
 	}
 
@@ -391,11 +391,11 @@ public class Server {
 
 	private boolean ValidToken(JSONObject json, String email)
 			throws ParseException, JsonParseException, JsonMappingException, IOException {
-		System.out.println("valid token: " + json);
+//		System.out.println("valid token: " + json);
 
 		String array = (String) json.get("token");
 
-		System.out.println("token: " + array);
+//		System.out.println("token: " + array);
 		JSONParser parser = new JSONParser();
 		JSONObject token = (JSONObject) parser.parse(array);
 		String randomValue = (String) token.get("randomNum");
