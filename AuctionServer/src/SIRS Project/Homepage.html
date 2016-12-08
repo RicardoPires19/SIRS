@@ -64,7 +64,7 @@
                         var newElement = document.createElement('div');
                         newElement.id = i;
                         newElement.className = "leilao";
-                        newElement.innerHTML = 'Name: ' + message.auctions[i].name + '<br>' + 'Current Bid: ' + message.auctions[i].highestBid + '<br>' + 'Expiration Date: ' + message.auctions[i].data + '<br>' + 'Auction ID: ' +message.auctions[i].id + '<br>';
+                        newElement.innerHTML = 'Item Description: ' + message.auctions[i].itemDescription + '<br>' + 'Current Bid: ' + message.auctions[i].hBid + '<br>' + 'Expiration Date: ' + message.auctions[i].endDate + '<br>' + 'Auction ID: ' +message.auctions[i].id + '<br>';
                         document.body.appendChild(newElement);
                     } 
                 }
@@ -77,7 +77,7 @@
                 var bidvalue = escapeHtml(document.getElementById("bidvalue").value);
                 var url = "https://localhost:9000/AuctionServer/Auction/bid";
                 var xmlhttp = new XMLHttpRequest();
-                var token = JSON.parse(localStorage.getItem('LoginToken'));
+                var token = localStorage.getItem('LoginToken');
                 var email = localStorage.getItem('Email');
                 var time = (new Date()).getTime();
 
@@ -107,11 +107,13 @@
             function logout() {
                 var url = "https://localhost:9000/AuctionServer/Loggout";
                  var email = localStorage.getItem('Email');
+		var time = (new Date()).getTime();
+
             var xmlhttp = new XMLHttpRequest();
                 xmlhttp.open("POST", url, true);
                 xmlhttp.setRequestHeader("Content-Type", "application/json");
-                var token = JSON.parse(localStorage.getItem('LoginToken'));
-                xmlhttp.send(JSON.stringify({token:token, email:email}));
+                var token = localStorage.getItem('LoginToken');
+                xmlhttp.send(JSON.stringify({token:token, email:email,time:time}));
                 xmlhttp.onreadystatechange = function() {
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                         localStorage.removeItem("LoginToken");
