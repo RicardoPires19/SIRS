@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -30,12 +31,15 @@ import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.apache.commons.lang3.*;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 
@@ -149,7 +153,7 @@ public class Server {
 				String firstName = StringEscapeUtils.escapeHtml4((String) json.get("firstName"));
 				String surName = StringEscapeUtils.escapeHtml4((String) json.get("surName"));
 				if (validateVarChar255(email) && validateVarChar255(firstName) && validateVarChar255(surName)) {
-					if (bd.getUserByEmail(email) != null) {
+					if (bd.getUserByEmail(email) == null) {
 						String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
 						String salt = genSalt();
 						System.out.println("Resgist User: " + firstName + " " + surName + " " + email + " " + passWord
@@ -208,7 +212,7 @@ public class Server {
 	public Response ListAuctions(String params) {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-
+		System.out.println("jason " + params);
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
@@ -234,6 +238,7 @@ public class Server {
 			return Response.status(400).build();
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(400).build();
 		}
 
@@ -291,7 +296,7 @@ public class Server {
 	public Response AddAuction(String params) {
 		JSONParser parser = new JSONParser();
 		JSONObject json;
-
+		System.out.println("add auction");
 		try {
 			json = (JSONObject) parser.parse(params);
 
@@ -371,6 +376,7 @@ public class Server {
 		ObjectMapper mapper = new ObjectMapper();
 		String tokenJson = null;
 		tokenJson = mapper.writeValueAsString(token);
+		System.out.println("new token: " + tokenJson);
 		return Response.ok(tokenJson, MediaType.APPLICATION_JSON).build();
 	}
 
@@ -382,10 +388,18 @@ public class Server {
 
 	}
 
-	private boolean ValidToken(JSONObject json, String email) {
-		JSONObject token = (JSONObject) json.get("token");
+	private boolean ValidToken(JSONObject json, String email)
+			throws ParseException, JsonParseException, JsonMappingException, IOException {
+		System.out.println("valid token: " + json);
+		ObjectMapper mapper = new ObjectMapper();
+
+		String array = (String) json.get("token");
+
+		System.out.println("token: " + array);
+		JSONParser parser = new JSONParser();
+		JSONObject token = (JSONObject) parser.parse(array);
 		String randomValue = (String) token.get("randomNum");
-		long tokenTime = Long.valueOf((String) token.get("timeStamp")).longValue();
+		long tokenTime = (long) token.get("timeStamp");
 
 		Token cToken = new Token(randomValue, tokenTime);
 

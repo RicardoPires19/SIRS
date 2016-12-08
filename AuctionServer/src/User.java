@@ -46,6 +46,7 @@ public class User {
 		this.email = email;
 		this.id=id;
 		this.credit = credit;
+		this.salt=salt;
 	}
 
 	public String getFirsthName() {

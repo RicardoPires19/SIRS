@@ -8,8 +8,8 @@
         <div id="whiteboard">
                 <p id="auctions"> <b> New Auction </b></p>
             <div id="format">
-                <label for="ItemDescription">Intem Description</label>
-                <input type="text" id="email" name="email">
+                <label for="ItemDescription">Item Description</label>
+                <input type="text" id="ItemDescription" name="email">
 
                 <label for="newbid">Minimum Bid Value</label>
                 <input type="text" id="basebid" name="basebid">
@@ -47,9 +47,9 @@
                 var itemDescription = escapeHtml(document.getElementById("ItemDescription").value);
                 var basebid = escapeHtml(document.getElementById("basebid").value);
                 var closingtime = escapeHtml(document.getElementById("closingtime").value);
-                var url = "https://localhost:9000/AuctionServer/Auction/bid";
+                var url = "https://localhost:9000/AuctionServer/Auction";
                 var xmlhttp = new XMLHttpRequest();
-                var token = JSON.parse(localStorage.getItem('LoginToken'));
+                var token = localStorage.getItem('LoginToken');
                 var email = localStorage.getItem('Email');
                 var time = (new Date()).getTime();
 
@@ -58,7 +58,8 @@
                 xmlhttp.send(JSON.stringify({token:token,Email:email, ItemDescription:itemDescription, bid:basebid, closingtime:closingtime, time:time}));
                 xmlhttp.onreadystatechange = function() {
                     if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        window.location = "./Homepage.html";
+			window.alert("Sucessed Auction");
+                        window.location = "https://localhost/Homepage.html";
                     }
                     else if(xmlhttp.readyState == 4 && xmlhttp.status == 7) {
                         //auction name already exists - error code 7

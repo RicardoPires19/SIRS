@@ -53,11 +53,11 @@
 
                             xmlhttp.open("POST", url, true);
                             xmlhttp.setRequestHeader("Content-Type", "application/json");
-                            xmlhttp.send(JSON.stringify({firstName:firstName, surName:lastName, email:email, passWord:password, time;time}));
+                            xmlhttp.send(JSON.stringify({firstName:firstName, surName:lastName, email:email, 								passWord:password, time:time}));
                             xmlhttp.onreadystatechange = function() {
                                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                                     //sucessful register
-                                    token = JSON.stringify(xmlhttp.responseText);
+                                    token = xmlhttp.responseText;
                                     localStorage.setItem('LoginToken', token);
                                     localStorage.setItem('Email', email);
                                     window.location = "./Homepage.html";

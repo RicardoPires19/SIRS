@@ -1,31 +1,30 @@
+import java.io.Serializable;
 
-public class Token {
+public class Token implements Serializable{
 
-	private String radomNum;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String randomNum;
 	private long timeStamp;
 
 	public Token() {
 
 	}
 
-	public Token(String radomNum, long timeStamp) {
-		this.radomNum=radomNum;
+	public Token(String randomNum, long timeStamp) {
+		this.randomNum=randomNum;
 		this.timeStamp=timeStamp;
 	}
 
-	public String getradomNum() {
-		return radomNum;
-	}
-
-	public void setradomNum(String radomNumNum) {
-		this.radomNum = radomNumNum;
-	}
+	
 
 	public long getTimeStamp() {
 		return timeStamp;
 	}
 
-	public void setTimeStamp(int timeStamp) {
+	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 
@@ -37,8 +36,16 @@ public class Token {
 			return false;
 		Token t = (Token) o;
 
-		return (this.radomNum.equals(t.getradomNum())   ) && (t.getTimeStamp() == timeStamp);
+		return (this.randomNum.equals(t.getRandomNum())   ) && (t.getTimeStamp() == timeStamp);
 
+	}
+
+	public String getRandomNum() {
+		return randomNum;
+	}
+
+	public void setRandomNum(String randomNum) {
+		this.randomNum = randomNum;
 	}
 
 }

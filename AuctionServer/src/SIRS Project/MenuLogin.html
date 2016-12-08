@@ -45,7 +45,7 @@
                         xmlhttp.onreadystatechange = function() {
                             if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                                 //sucessful login
-                                token = JSON.stringify(xmlhttp.responseText);
+                                token = xmlhttp.responseText;
                                 localStorage.setItem('LoginToken', token);
                                 localStorage.setItem('Email', email);
                                 window.location = "./Homepage.html";
