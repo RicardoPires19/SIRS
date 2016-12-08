@@ -284,7 +284,7 @@ public class Server {
 			return Response.status(400).build();
 
 		} catch (Exception e) {
-
+			e.printStackTrace();
 			return Response.status(400).build();
 		}
 
@@ -301,7 +301,7 @@ public class Server {
 			json = (JSONObject) parser.parse(params);
 
 			if (checkFreshness(json)) {
-				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
+				String email = StringEscapeUtils.escapeHtml4((String) json.get("Email"));
 				if (ValidToken(json, email)) {
 
 					User u = bd.getUserByEmail(email);
@@ -310,14 +310,13 @@ public class Server {
 						if (validateVarChar255(itemDescription)) {
 							int baseBid = Integer.parseInt((String) json.get("bid"));
 							if (validateInt(baseBid)) {
-								String closingtime = (String) json.get("closingtime");
+								long closingtime = (long) json.get("closingtime");
 
-								SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy");
-								// date java util
-								Date aux = (Date) sdf.parse(closingtime);
-								System.out.println();
+								System.out.println("date em milisecunds " + closingtime);
 								// date sql
-								Date date = new Date(aux.getTime());
+								Date date = new Date(closingtime);
+								System.out.println("data " + closingtime);
+
 								bd.insertLeilao(u.getId(), u.getId(), baseBid, date, itemDescription);
 
 								return Response.status(200).build();
@@ -337,6 +336,7 @@ public class Server {
 			return Response.status(400).build();
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(400).build();
 		}
 	}
@@ -350,6 +350,7 @@ public class Server {
 
 		try {
 			json = (JSONObject) parser.parse(params);
+			System.out.println("loggout "+json);
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
 			if (checkFreshness(json)) {
 				if (ValidToken(json, email)) {
@@ -391,7 +392,6 @@ public class Server {
 	private boolean ValidToken(JSONObject json, String email)
 			throws ParseException, JsonParseException, JsonMappingException, IOException {
 		System.out.println("valid token: " + json);
-		ObjectMapper mapper = new ObjectMapper();
 
 		String array = (String) json.get("token");
 

@@ -196,6 +196,7 @@ public class SQLProcedures {
 			String sql = "select * from leiloes where Id = ?";
 
 			ResultSet myRs = getFromDB(sql, id);
+			if (myRs.next()){
 			System.out.println("Id: " + myRs.getString("Id") + ", "
 					+"Highest Bidder: " + myRs.getString("Highest_bidder") + ", "
 					+"Owner: " + myRs.getString("Owner") + ", "
@@ -209,6 +210,7 @@ public class SQLProcedures {
 					myRs.getInt("Highest_Bid"), 
 					myRs.getDate("End_date"), 
 					myRs.getString("ItemDescription"));
+			}
 		} catch (ClassNotFoundException e) {
 			System.err.println("Erro 0: " + e);
 		} catch (SQLException e) {
