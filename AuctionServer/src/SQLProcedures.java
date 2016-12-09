@@ -22,11 +22,19 @@ public class SQLProcedures {
 //	final String USER = "ssluser";
 //	final String PASS = "ssluser";
 	
-	final String USER="root";
-	final String PASS="numero15395";
+	 String USER="root";
+	 String PASS="numero15395";
 	
 
-	public SQLProcedures() {}
+	public SQLProcedures() {
+		 USER="root";
+		  PASS="numero15395";
+	}
+	
+	public SQLProcedures(String user,String pass){
+		USER=user;
+		PASS=pass;
+	}
 
 	private ResultSet getFromDB(String query, String param) throws ClassNotFoundException, SQLException{
 		Connection myConn = null;

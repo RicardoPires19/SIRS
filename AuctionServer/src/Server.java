@@ -1,12 +1,14 @@
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -49,9 +51,9 @@ public class Server {
 	/**
 	 * @param args
 	 */
-	private static final File KEYSTORE = new File("./keystore.jks");
-	private static final char[] JKS_PASSWORD = "e4HutkkfcHR4aj8vEA8UrzUzGm3fswHbTvxrXu3A".toCharArray();
-	private static final char[] KEY_PASSWORD = "2pQAkKWfq7v2VM4Re4aJVXLw3YvbjJUBc9Veq5cu".toCharArray();
+	private static File KEYSTORE = new File("./keystore.jks");
+	private static char[] JKS_PASSWORD = "e4HutkkfcHR4aj8vEA8UrzUzGm3fswHbTvxrXu3A".toCharArray();
+	private static char[] KEY_PASSWORD = "2pQAkKWfq7v2VM4Re4aJVXLw3YvbjJUBc9Veq5cu".toCharArray();
 	private static String myURL;
 	private static final int DELTA_TIME = 2 * 60 * 1000; // 2 min?
 	private static final int SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min?
@@ -66,17 +68,30 @@ public class Server {
 	private static final int AUCTION_NOT_EXISTS = 8;
 	private static final int NOT_FRESH = 9;
 	private static SecureRandom random;
+	private static final int TIME = 1 * 20 * 1000;
 
 	public static void main(String[] args) throws Exception {
-		int port = args.length > 0 ? Integer.parseInt(args[0]) : 9000;
+		KEYSTORE = args.length > 0 ? new File(args[0]) : new File("./keystore.jks");
+		JKS_PASSWORD = args.length > 1 ? args[1].toCharArray()
+				: "e4HutkkfcHR4aj8vEA8UrzUzGm3fswHbTvxrXu3A".toCharArray();
+		KEY_PASSWORD = args.length > 2 ? args[2].toCharArray()
+				: "2pQAkKWfq7v2VM4Re4aJVXLw3YvbjJUBc9Veq5cu".toCharArray();
+		int port = args.length > 3 ? Integer.parseInt(args[3]) : 9000;
+		String bdUser = args.length > 4 ? args[4] : "ssluser";
+		String bdPass = args.length > 5 ? args[5] : "ssluser";
 		System.out.println("Server runing on port: " + port);
+
+		System.out.println(KEYSTORE.getAbsolutePath());
 		java.nio.file.Path currentRelativePath = Paths.get("");
 		String s1 = currentRelativePath.toAbsolutePath().toString();
 		System.out.println("Current relative path is: " + s1);
 		// InetAddress s = localhostAddress();
-		// myURL= String.format("http://%s:%s/",s.getCanonicalHostName(),port);
+		// myURL= String.format("https://%s:%s/",s.getCanonicalHostName(),port);
 		myURL = String.format("https://%s:%s/", "localhost", port);
-		// myURL= String.format("http://127.0.0.0:%s/",port);
+		while (!available("localhost", port)) {
+			System.out.println("waiting");
+			Thread.sleep(TIME);
+		}
 		System.out.println("Server url: " + myURL);
 		URI baseUri = UriBuilder.fromUri(myURL).build();
 		ResourceConfig config = new ResourceConfig();
@@ -97,12 +112,38 @@ public class Server {
 		HttpServer server = JdkHttpServerFactory.createHttpServer(baseUri, config, sslContext);
 
 		usersLoggedIn = new ConcurrentHashMap<String, Token>();
-		bd = new SQLProcedures();
+
+		bd = args.length > 4 ? new SQLProcedures(bdUser, bdPass) : new SQLProcedures();
 		random = new SecureRandom();
 
 		System.err.println("REST Server ready... ");
 
 	}
+
+	private static boolean available(String host,int port) {
+	    System.out.println("--------------Testing port " + port);
+	    Socket s = null;
+	    try {
+	        s = new Socket(host, port);
+
+	        // If the code makes it this far without an exception it means
+	        // something is using the port and has responded.
+	        System.out.println("--------------Port " + port + " is not available");
+	        return false;
+	    } catch (IOException e) {
+	        System.out.println("--------------Port " + port + " is available");
+	        return true;
+	    } finally {
+	        if( s != null){
+	            try {
+	                s.close();
+	            } catch (IOException e) {
+	                throw new RuntimeException("You should handle this error." , e);
+	            }
+	        }
+	    }
+	}
+
 
 	/**
 	 * 
@@ -138,6 +179,20 @@ public class Server {
 	 * -------------------------------------------------------------------------------------------------------------
 	 * -------------------------------------------------------------------------------------------------------------
 	 */
+
+	// @GET
+	// @Path("/teste")
+	// @Produces({ MediaType.TEXT_HTML })
+	// public InputStream viewHome() {
+	// File f = new File("home/pauloanjos/Desktop/index.html");
+	// try {
+	// return new FileInputStream(f);
+	// } catch (FileNotFoundException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return null;
+	// }
 
 	@POST
 	@Path("/User")
@@ -187,8 +242,10 @@ public class Server {
 
 				String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
 				String passWord = StringEscapeUtils.escapeHtml4((String) json.get("passWord"));
-//				System.out.println("Loggin User unescaped: " + email + " " + passWord);
-//				System.out.println("Loggin User escaped: " + email + " " + passWord);
+				// System.out.println("Loggin User unescaped: " + email + " " +
+				// passWord);
+				// System.out.println("Loggin User escaped: " + email + " " +
+				// passWord);
 
 				User u = bd.getUserByEmail(email);
 				if (u == null)
@@ -212,7 +269,7 @@ public class Server {
 	public Response ListAuctions(String params) {
 		// returna lista de leilloes
 		System.out.println("resquest leiloes");
-//		System.out.println("jason " + params);
+		// System.out.println("jason " + params);
 		JSONParser parser = new JSONParser();
 		JSONObject json;
 		try {
@@ -227,7 +284,7 @@ public class Server {
 						String auctionsJson = mapper.writeValueAsString(auctions);
 
 						System.out.println(auctionsJson);
-//						System.out.println(json);
+						// System.out.println(json);
 						return Response.ok(auctionsJson).build();
 					}
 					return Response.status(EMAIL_NOT_EXISTS).build();
@@ -350,7 +407,7 @@ public class Server {
 
 		try {
 			json = (JSONObject) parser.parse(params);
-			System.out.println("loggout "+json);
+			System.out.println("loggout " + json);
 			String email = StringEscapeUtils.escapeHtml4((String) json.get("email"));
 			if (checkFreshness(json)) {
 				if (ValidToken(json, email)) {
@@ -377,7 +434,7 @@ public class Server {
 		ObjectMapper mapper = new ObjectMapper();
 		String tokenJson = null;
 		tokenJson = mapper.writeValueAsString(token);
-//		System.out.println("new token: " + tokenJson);
+		// System.out.println("new token: " + tokenJson);
 		return Response.ok(tokenJson, MediaType.APPLICATION_JSON).build();
 	}
 
@@ -391,11 +448,11 @@ public class Server {
 
 	private boolean ValidToken(JSONObject json, String email)
 			throws ParseException, JsonParseException, JsonMappingException, IOException {
-//		System.out.println("valid token: " + json);
+		// System.out.println("valid token: " + json);
 
 		String array = (String) json.get("token");
 
-//		System.out.println("token: " + array);
+		// System.out.println("token: " + array);
 		JSONParser parser = new JSONParser();
 		JSONObject token = (JSONObject) parser.parse(array);
 		String randomValue = (String) token.get("randomNum");
