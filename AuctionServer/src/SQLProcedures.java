@@ -13,10 +13,11 @@ public class SQLProcedures {
 
 	// JDBC driver name and database URL
 	final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	final String DB_URL = "jdbc:mysql://localhost:3306/leiloes_sirs";
-//			+"?verifyServerCertificate=false;";
-//			+"&useSSL=false"
-//			+"&requireSSL=false;";
+	final String DB_URL = "jdbc:mysql://192.168.56.104:3306/leiloes_sirs"
+			+"?verifyServerCertificate=false"
+			+"&useSSL=true"
+			+"&requireSSL=true";
+
 
 	//  Database credentials
 //	final String USER = "ssluser";
